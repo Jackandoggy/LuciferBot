@@ -1,7 +1,7 @@
 
 import asyncio
-import logging
-import logging.config
+# import logging
+# import logging.config
 import time
 from inspect import getfullargspec
 from os import path
@@ -18,11 +18,11 @@ from motor.motor_asyncio import AsyncIOMotorClient as MongoClient
 from sample_config import *
 
 
-# Get logging configurations
-logging.config.fileConfig('logging.conf')
-logging.getLogger().setLevel(logging.INFO)
-logging.getLogger("pyrogram").setLevel(logging.ERROR)
-logging.getLogger("imdbpy").setLevel(logging.ERROR)
+# # Get logging configurations
+# logging.config.fileConfig('logging.conf')
+# logging.getLogger().setLevel(logging.INFO)
+# logging.getLogger("pyrogram").setLevel(logging.ERROR)
+# logging.getLogger("imdbpy").setLevel(logging.ERROR)
 
 GBAN_LOG_GROUP_ID = GBAN_LOG_GROUP_ID
 USERBOT_ID = USERBOT_ID
@@ -81,8 +81,8 @@ BOT_USERNAME = x.username
 BOT_MENTION = x.mention
 BOT_DC_ID = x.dc_id
 
-logging.info(f"{BOT_NAME} with for Pyrogram v{__version__} (Layer {layer}) started on {BOT_USERNAME}.")
-logging.info(f"{BOT_NAME} Has Started Running...🏃💨💨")
+# logging.info(f"{BOT_NAME} with for Pyrogram v{__version__} (Layer {layer}) started on {BOT_USERNAME}.")
+# logging.info(f"{BOT_NAME} Has Started Running...🏃💨💨")
 
 telegraph = Telegraph()
 telegraph.create_account(short_name=BOT_USERNAME)
