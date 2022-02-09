@@ -106,9 +106,12 @@ home_keyboard_pm = InlineKeyboardMarkup(
 )
 
 home_text_pm = (
-        f"Hey there! My name is {BOT_NAME}. I can manage your "
-        + "group with lots of useful features, feel free to "
-        + "add me to your group."
+        "Hey Dear **{username}**! \n        My name is **{botname}**, I'm Here To Help You Manage Your Groups! "
+        "\nHit /help To Find Out More About How To Use Me To My Full Potential."
+        "\nJoin My [News Channel](https://t.me/joinchat/7qlEga5lO0o2MTg0) To Get Information On All The Latest Updates."
+        # f"Hey there! My name is {BOT_NAME}. I can manage your "
+        # + "group with lots of useful features, feel free to "
+        # + "add me to your group."
 )
 
 keyboard = InlineKeyboardMarkup(
@@ -160,7 +163,7 @@ async def start(_, message):
             )
     else:
         await message.reply_photo(photo=random.choice(PICS),
-                                  caption=home_text_pm,
+                                  caption=home_text_pm.format(username=message.from_user.first_name, botname=BOT_NAME),
                                   reply_markup=home_keyboard_pm,
                                   )
     return
