@@ -106,9 +106,9 @@ home_keyboard_pm = InlineKeyboardMarkup(
 )
 
 home_text_pm = (
-        "Hey Dear **{username}**! \n        My name is **{botname}**, I'm Here To Help You Manage Your Groups! "
-        "\nHit /help To Find Out More About How To Use Me To My Full Potential."
-        "\nJoin My [News Channel](https://t.me/joinchat/7qlEga5lO0o2MTg0) To Get Information On All The Latest Updates."
+        "Hᴇʏ Dᴇᴀʀ **_{username}_**! \n        Mʏ Nᴀᴍᴇ Is **_{botname}_**, I'ᴍ Hᴇʀᴇ Tᴏ Hᴇʟᴘ Yᴏᴜ Mᴀɴᴀɢᴇ Yᴏᴜʀ Gʀᴏᴜᴘs! "
+        "\nHɪᴛ /help Tᴏ Fɪɴᴅ Oᴜᴛ Mᴏʀᴇ Aʙᴏᴜᴛ Hᴏᴡ Tᴏ Usᴇ Mᴇ Tᴏ Mʏ Fᴜʟʟ Pᴏᴛᴇɴᴛɪᴀʟ."
+        "\nJᴏɪɴ Mʏ [Nᴇᴡs Cʜᴀɴɴᴇʟ](https://t.me/joinchat/7qlEga5lO0o2MTg0) Tᴏ Gᴇᴛ Iɴғᴏʀᴍᴀᴛɪᴏɴ Oɴ Aʟʟ Tʜᴇ Lᴀᴛᴇsᴛ Uᴘᴅᴀᴛᴇs."
         # f"Hey there! My name is {BOT_NAME}. I can manage your "
         # + "group with lots of useful features, feel free to "
         # + "add me to your group."
