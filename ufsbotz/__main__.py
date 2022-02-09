@@ -3,7 +3,7 @@ import importlib
 import random
 import re
 
-# import uvloop
+import uvloop
 from pyrogram import filters, idle
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
@@ -337,7 +337,7 @@ General command are:
 
 
 if __name__ == "__main__":
-    # uvloop.install()
+    uvloop.install()
     try:
         try:
             loop.run_until_complete(start_bot())
