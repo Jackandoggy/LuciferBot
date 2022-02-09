@@ -5,7 +5,7 @@ import aiofiles
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ufsbotz import SUDOERS, app, eor
+from ufsbotz import SUDOERS, ufs, eor
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.keyboard import ikb
 from ufsbotz.utils.pastebin import paste
@@ -15,7 +15,7 @@ __HELP__ = "/paste - To Paste Replied Text Or Document To A Pastebin"
 pattern = re.compile(r"^text/|json$|yaml$|xml$|toml$|x-sh$|x-shellscript$")
 
 
-@app.on_message(filters.command("paste") & ~filters.edited)
+@ufs.on_message(filters.command("paste") & ~filters.edited)
 @capture_err
 async def paste_func(_, message: Message):
     if not message.reply_to_message:

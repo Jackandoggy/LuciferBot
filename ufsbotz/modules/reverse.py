@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from pyrogram import filters
 from pyrogram.types import InputMediaPhoto, Message
 
-from ufsbotz import MESSAGE_DUMP_CHAT, SUDOERS, app, eor
+from ufsbotz import MESSAGE_DUMP_CHAT, SUDOERS, ufs, eor
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.utils.functions import get_file_id_from_message
 from ufsbotz.utils.http import get
@@ -21,7 +21,7 @@ async def get_soup(url: str, headers):
     return BeautifulSoup(html, "html.parser")
 
 
-@app.on_message(filters.command("reverse"))
+@ufs.on_message(filters.command("reverse"))
 @capture_err
 async def reverse_image_search(client, message: Message):
     if not message.reply_to_message:

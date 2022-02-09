@@ -9,7 +9,7 @@ from pyrogram.errors.exceptions.bad_request_400 import (ChatAdminRequired,
 from pyrogram.types import (Chat, ChatPermissions, InlineKeyboardButton,
                             InlineKeyboardMarkup, Message, User)
 
-from ufsbotz import SUDOERS, WELCOME_DELAY_KICK_SEC, app
+from ufsbotz import SUDOERS, WELCOME_DELAY_KICK_SEC, ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.decorators.permissions import adminsOnly
 from ufsbotz.core.keyboard import ikb
@@ -66,7 +66,7 @@ async def get_initial_captcha_cache():
 loop.create_task(get_initial_captcha_cache())
 
 
-@app.on_message(filters.new_chat_members, group=welcome_captcha_group)
+@ufs.on_message(filters.new_chat_members, group=welcome_captcha_group)
 @capture_err
 async def send_welcome_message(client, message: Message):
     raw_text = await get_welcome(message.chat.id)
@@ -79,9 +79,9 @@ async def send_welcome_message(client, message: Message):
     if "{chat}" in text:
         text = text.replace("{chat}", message.chat.title)
     if "{name}" in text:
-        text = text.replace("{name}", (await app.get_users(message.new_chat_members[0].id)).mention)
+        text = text.replace("{name}", (await ufs.get_users(message.new_chat_members[0].id)).mention)
 
-    await app.send_message(
+    await ufs.send_message(
         message.chat.id,
         text=text,
         reply_markup=keyb,
@@ -89,7 +89,7 @@ async def send_welcome_message(client, message: Message):
     )
 
 
-@app.on_message(filters.new_chat_members, group=welcome_captcha_group)
+@ufs.on_message(filters.new_chat_members, group=welcome_captcha_group)
 @capture_err
 async def welcome(_, message: Message):
     global answers_dicc
@@ -190,7 +190,7 @@ async def welcome(_, message: Message):
         await asyncio.sleep(0.5)
 
 
-@app.on_callback_query(filters.regex("pressed_button"))
+@ufs.on_callback_query(filters.regex("pressed_button"))
 async def callback_query_welcome_button(_, callback_query):
     """After the new member presses the correct button,
     set his permissions to chat permissions,
@@ -299,7 +299,7 @@ async def _ban_restricted_user_until_date(
         pass
 
 
-@app.on_message(filters.command("captcha") & ~filters.private)
+@ufs.on_message(filters.command("captcha") & ~filters.private)
 @adminsOnly("can_restrict_members")
 async def captcha_state(_, message):
     usage = "**Usage:**\n/captcha [ENABLE|DISABLE]"
@@ -322,7 +322,7 @@ async def captcha_state(_, message):
 # WELCOME MESSAGE
 
 
-@app.on_message(filters.command("set_welcome") & ~filters.private)
+@ufs.on_message(filters.command("set_welcome") & ~filters.private)
 @adminsOnly("can_change_info")
 async def set_welcome_func(_, message):
     usage = "You need to reply to a text, check the Greetings module in /help"
@@ -340,7 +340,7 @@ async def set_welcome_func(_, message):
     await message.reply_text("Welcome message has been successfully set.")
 
 
-@app.on_message(filters.command("del_welcome") & ~filters.private)
+@ufs.on_message(filters.command("del_welcome") & ~filters.private)
 @adminsOnly("can_change_info")
 async def del_welcome_func(_, message):
     chat_id = message.chat.id
@@ -348,7 +348,7 @@ async def del_welcome_func(_, message):
     await message.reply_text("Welcome message has been deleted.")
 
 
-@app.on_message(filters.command("get_welcome") & ~filters.private)
+@ufs.on_message(filters.command("get_welcome") & ~filters.private)
 @adminsOnly("can_change_info")
 async def get_welcome_func(_, message):
     chat = message.chat
@@ -370,9 +370,9 @@ async def get_welcome_func(_, message):
     if "{chat}" in text:
         text = text.replace("{chat}", message.chat.title)
     if "{name}" in text:
-        text = text.replace("{name}", (await app.get_users(message.from_user.id)).mention)
+        text = text.replace("{name}", (await ufs.get_users(message.from_user.id)).mention)
 
-    await app.send_message(
+    await ufs.send_message(
         message.chat.id,
         text=text,
         reply_markup=keyb,

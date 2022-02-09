@@ -3,7 +3,7 @@ import os
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ufsbotz import SUDOERS, app
+from ufsbotz import SUDOERS, ufs
 from ufsbotz.core.sections import section
 from ufsbotz.utils.dbfunctions import is_gbanned_user, user_global_karma
 
@@ -16,7 +16,7 @@ __HELP__ = """
 
 async def get_user_info(user, already=False):
     if not already:
-        user = await app.get_users(user)
+        user = await ufs.get_users(user)
     if not user.first_name:
         return ["Deleted account", None]
     user_id = user.id
@@ -44,7 +44,7 @@ async def get_user_info(user, already=False):
 
 async def get_chat_info(chat, already=False):
     if not already:
-        chat = await app.get_chat(chat)
+        chat = await ufs.get_chat(chat)
     chat_id = chat.id
     username = chat.username
     title = chat.title
@@ -72,7 +72,7 @@ async def get_chat_info(chat, already=False):
     return [caption, photo_id]
 
 
-@app.on_message(filters.command("info"))
+@ufs.on_message(filters.command("info"))
 async def info_func(_, message: Message):
     if message.reply_to_message:
         user = message.reply_to_message.from_user.id
@@ -90,14 +90,14 @@ async def info_func(_, message: Message):
 
     if not photo_id:
         return await m.edit(info_caption, disable_web_page_preview=True)
-    photo = await app.download_media(photo_id)
+    photo = await ufs.download_media(photo_id)
 
     await message.reply_photo(photo, caption=info_caption, quote=False)
     await m.delete()
     os.remove(photo)
 
 
-@app.on_message(filters.command("chat_info"))
+@ufs.on_message(filters.command("chat_info"))
 async def chat_info_func(_, message: Message):
     try:
         if len(message.command) > 2:
@@ -116,7 +116,7 @@ async def chat_info_func(_, message: Message):
         if not photo_id:
             return await m.edit(info_caption, disable_web_page_preview=True)
 
-        photo = await app.download_media(photo_id)
+        photo = await ufs.download_media(photo_id)
         await message.reply_photo(photo, caption=info_caption, quote=False)
 
         await m.delete()

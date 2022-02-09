@@ -4,7 +4,7 @@ from os import remove
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ufsbotz import app, arq
+from ufsbotz import ufs, arq
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.utils.functions import get_file_id_from_message
 
@@ -45,7 +45,7 @@ async def upload(m: Message, file: str = None, url: str = None):
     )
 
 
-@app.on_message(filters.command("upload"))
+@ufs.on_message(filters.command("upload"))
 @capture_err
 async def arq_upload(_, message):
     if message.reply_to_message:
@@ -61,7 +61,7 @@ async def arq_upload(_, message):
                 return await message.reply("Unsupported media.")
 
             m = await message.reply("Downloading...")
-            file = await app.download_media(file_id)
+            file = await ufs.download_media(file_id)
 
             await m.edit("Uploading...")
             return await upload(m, file=file)

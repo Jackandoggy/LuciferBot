@@ -1,6 +1,6 @@
 from pyrogram import filters
 
-from ufsbotz import app
+from ufsbotz import ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.utils.http import get, resp_get
 
@@ -9,7 +9,7 @@ __HELP__ = """/short - To Short a url. Use **/short url coustom** to get coustom
 /unshort - To unshort a url."""
 
 
-@app.on_message(filters.command("short") & ~filters.edited)
+@ufs.on_message(filters.command("short") & ~filters.edited)
 @capture_err
 async def short(_, message):
     if len(message.command) < 2:
@@ -30,7 +30,7 @@ async def short(_, message):
         return await message.reply_text(f"**{e}**")
 
 
-@app.on_message(filters.command("unshort"))
+@ufs.on_message(filters.command("unshort"))
 @capture_err
 async def unshort(_, message):
     if len(message.command) < 2:

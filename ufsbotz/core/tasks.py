@@ -4,8 +4,8 @@ from time import time
 from pyrogram import filters
 from pyrogram.types import Message
 
-from pykeyboard import BOT_ID, SUDOERS
-from pykeyboard.core.sections import bold, section, w
+from ufsbotz import BOT_ID, SUDOERS
+from ufsbotz.core.sections import bold, section, w
 
 tasks = {}
 TASKS_LOCK = Lock()

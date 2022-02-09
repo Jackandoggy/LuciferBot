@@ -4,7 +4,7 @@ from feedparser import parse
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ufsbotz import RSS_DELAY, app
+from ufsbotz import RSS_DELAY, ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.utils.dbfunctions import (add_rss_feed, get_rss_feeds, is_rss_active,
                                        remove_rss_feed, update_rss_feed)
@@ -45,7 +45,7 @@ async def rss_worker():
                 if feed.title == last_title:
                     continue
 
-                await app.send_message(
+                await ufs.send_message(
                     chat, feed.parsed(), disable_web_page_preview=True
                 )
                 await update_rss_feed(chat, feed.title)
@@ -58,7 +58,7 @@ loop = get_event_loop()
 loop.create_task(rss_worker())
 
 
-@app.on_message(filters.command("add_feed"))
+@ufs.on_message(filters.command("add_feed"))
 @capture_err
 async def add_feed_func(_, m: Message):
     if len(m.command) != 2:
@@ -97,7 +97,7 @@ async def add_feed_func(_, m: Message):
     await add_rss_feed(chat_id, feed.url, feed.title)
 
 
-@app.on_message(filters.command("rm_feed"))
+@ufs.on_message(filters.command("rm_feed"))
 async def rm_feed_func(_, m: Message):
     if await is_rss_active(m.chat.id):
         await remove_rss_feed(m.chat.id)

@@ -3,11 +3,11 @@ from asyncio import sleep
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ufsbotz import SUDOERS, app, eor
+from ufsbotz import SUDOERS, ufs, eor
 from ufsbotz.core.sections import section
 
 
-@app.on_message(
+@ufs.on_message(
     filters.command("parse_preview")
     & filters.user(SUDOERS),
 )
@@ -22,7 +22,7 @@ async def parse(_, message: Message):
     if not r.web_page:
         text = r.text or r.caption
         if text:
-            m = await app.send_message(m_.chat.id, text)
+            m = await ufs.send_message(m_.chat.id, text)
             await sleep(1)
             await m.delete()
             if m.web_page:
@@ -55,16 +55,16 @@ async def parse(_, message: Message):
 
     if t == "photo":
         media = wpp.photo
-        func = app.send_photo
+        func = ufs.send_photo
     elif t == "audio":
         media = wpp.audio
-        func = app.send_audio
+        func = ufs.send_audio
     elif t == "video":
         media = wpp.video
-        func = app.send_video
+        func = ufs.send_video
     elif t == "document":
         media = wpp.document
-        func = app.send_document
+        func = ufs.send_document
     else:
         media = None
         func = None

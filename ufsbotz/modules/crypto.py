@@ -1,6 +1,6 @@
 from pyrogram import filters
 
-from ufsbotz import app
+from ufsbotz import ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.keyboard import ikb
 from ufsbotz.core.sections import section
@@ -13,7 +13,7 @@ __HELP__ = """
 """
 
 
-@app.on_message(filters.command("crypto"))
+@ufs.on_message(filters.command("crypto"))
 @capture_err
 async def crypto(_, message):
     if len(message.command) < 2:

@@ -1,11 +1,11 @@
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ufsbotz import SUDOERS, app, arq
+from ufsbotz import SUDOERS, ufs, arq
 from ufsbotz.utils.filter_groups import autocorrect_group
 
 
-@app.on_message(filters.command("autocorrect"))
+@ufs.on_message(filters.command("autocorrect"))
 async def autocorrect_bot(_, message: Message):
     if not message.reply_to_message:
         return await message.reply_text("Reply to a text message.")

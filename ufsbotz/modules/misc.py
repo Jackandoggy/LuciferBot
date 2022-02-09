@@ -4,7 +4,7 @@ from asyncio import Lock
 
 from pyrogram import filters
 
-from ufsbotz import SUDOERS, app, arq, eor
+from ufsbotz import SUDOERS, ufs, arq, eor
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.utils import random_line
 from ufsbotz.utils.http import get
@@ -68,7 +68,7 @@ __HELP__ = """
 ASQ_LOCK = Lock()
 
 
-@app.on_message(filters.command("asq") & ~filters.edited)
+@ufs.on_message(filters.command("asq") & ~filters.edited)
 async def asq(_, message):
     err = "Reply to text message or pass the question as argument"
     if message.reply_to_message:
@@ -85,12 +85,12 @@ async def asq(_, message):
         await m.edit(resp.result)
 
 
-@app.on_message(filters.command("commit") & ~filters.edited)
+@ufs.on_message(filters.command("commit") & ~filters.edited)
 async def commit(_, message):
     await message.reply_text(await get("http://whatthecommit.com/index.txt"))
 
 
-@app.on_message(filters.command("RTFM", "#"))
+@ufs.on_message(filters.command("RTFM", "#"))
 async def rtfm(_, message):
     try:
         await message.delete()
@@ -103,12 +103,12 @@ async def rtfm(_, message):
     )
 
 
-@app.on_message(filters.command("runs") & ~filters.edited)
+@ufs.on_message(filters.command("runs") & ~filters.edited)
 async def runs(_, message):
     await message.reply_text((await random_line("wbb/utils/runs.txt")))
 
 
-@app.on_message(filters.command("id"))
+@ufs.on_message(filters.command("id"))
 async def getid(client, message):
     chat = message.chat
     your_id = message.from_user.id
@@ -146,7 +146,7 @@ async def getid(client, message):
 
 
 # Random
-@app.on_message(filters.command("random") & ~filters.edited)
+@ufs.on_message(filters.command("random") & ~filters.edited)
 @capture_err
 async def random(_, message):
     if len(message.command) != 2:
@@ -170,7 +170,7 @@ async def random(_, message):
 
 
 # Translate
-@app.on_message(filters.command("tr") & ~filters.edited)
+@ufs.on_message(filters.command("tr") & ~filters.edited)
 @capture_err
 async def tr(_, message):
     if len(message.command) != 2:
@@ -193,7 +193,7 @@ async def tr(_, message):
     await message.reply_text(result.result.translatedText)
 
 
-@app.on_message(filters.command("json") & ~filters.edited)
+@ufs.on_message(filters.command("json") & ~filters.edited)
 @capture_err
 async def json_fetch(_, message):
     if len(message.command) != 2:
@@ -215,7 +215,7 @@ async def json_fetch(_, message):
         await m.edit(str(e))
 
 
-@app.on_message(filters.command("webss"))
+@ufs.on_message(filters.command("webss"))
 @capture_err
 async def take_ss(_, message):
     if len(message.command) != 2:
@@ -223,7 +223,7 @@ async def take_ss(_, message):
     url = message.text.split(None, 1)[1]
     m = await message.reply_text("**Uploading**")
     try:
-        await app.send_photo(
+        await ufs.send_photo(
             message.chat.id,
             photo=f"https://webshot.amanoteam.com/print?q={url}",
         )
@@ -232,7 +232,7 @@ async def take_ss(_, message):
     await m.delete()
 
 
-@app.on_message(filters.command(["kickme", "banme"]))
+@ufs.on_message(filters.command(["kickme", "banme"]))
 async def kickbanme(_, message):
     await message.reply_text(
         "Haha, it doesn't work that way, You're stuck with everyone here."

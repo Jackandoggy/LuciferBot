@@ -1,31 +1,31 @@
 from pyrogram import filters
 from ufsbotz.utils.http import get
-from ufsbotz import app
-from ufsbotz.utils.dbfunctions import get_nsfw_status,set_nsfw_status
+from ufsbotz import ufs
+from ufsbotz.utils.dbfunctions import get_nsfw_status, set_nsfw_status
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.decorators.permissions import adminsOnly
-
 
 __MODULE__ = "Anime Pics"
 __HELP__ = "**Get SFW (Safe for work) Anime Pics. Try This Commands:**"
 BASE_URL = "https://api.waifu.pics/"
 
-commands = ['waifu','neko','shinobu','megumin','bully','cuddle','cry',
-            'hug','awoo','kiss','lick','pat','smug','bonk','yeet','blush',
-            'smile','wave','highfive','handhold','nom','bite','glomp','slapgif',
-            'kill','kick','happy','wink','poke','dance','cringe']
+commands = ['waifu', 'neko', 'shinobu', 'megumin', 'bully', 'cuddle', 'cry',
+            'hug', 'awoo', 'kiss', 'lick', 'pat', 'smug', 'bonk', 'yeet', 'blush',
+            'smile', 'wave', 'highfive', 'handhold', 'nom', 'bite', 'glomp', 'slapgif',
+            'kill', 'kick', 'happy', 'wink', 'poke', 'dance', 'cringe']
 
 for _i in commands:
     __HELP__ += f"\n/{_i}"
 
 __HELP__ += "\n\n**Get NSFW (Not Safe for work) Anime Pics. Try This Commands:**"
-nsfw_commands = ['trap','blowjob','nsfwwaifu','nwaifu','nsfwneko']
+nsfw_commands = ['trap', 'blowjob', 'nsfwwaifu', 'nwaifu', 'nsfwneko']
 for _i in nsfw_commands:
     __HELP__ += f"\n/{_i}"
 
 __HELP__ += "\n\n** Turn on/off NSFW by /nsfw on/off **"
 
-@app.on_message(filters.command("waifu"))
+
+@ufs.on_message(filters.command("waifu"))
 @capture_err
 async def waifu(client, message):
     m = await message.reply_text("Getting a random waifu...")
@@ -33,7 +33,8 @@ async def waifu(client, message):
     await message.reply_photo(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("neko"))
+
+@ufs.on_message(filters.command("neko"))
 @capture_err
 async def neko(client, message):
     m = await message.reply_text("Getting a random neko...")
@@ -41,7 +42,8 @@ async def neko(client, message):
     await message.reply_photo(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("shinobu"))
+
+@ufs.on_message(filters.command("shinobu"))
 @capture_err
 async def shinobu(client, message):
     m = await message.reply_text("Getting a random shinobu...")
@@ -49,7 +51,8 @@ async def shinobu(client, message):
     await message.reply_photo(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("megumin"))
+
+@ufs.on_message(filters.command("megumin"))
 @capture_err
 async def megumin(client, message):
     m = await message.reply_text("Getting a random megumin...")
@@ -57,7 +60,8 @@ async def megumin(client, message):
     await message.reply_photo(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("bully"))
+
+@ufs.on_message(filters.command("bully"))
 @capture_err
 async def bully(client, message):
     m = await message.reply_text("Getting a random bully...")
@@ -65,7 +69,8 @@ async def bully(client, message):
     await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("cuddle"))
+
+@ufs.on_message(filters.command("cuddle"))
 @capture_err
 async def cuddle(client, message):
     m = await message.reply_text("Getting a random cuddle...")
@@ -73,64 +78,73 @@ async def cuddle(client, message):
     await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("cry"))
+
+@ufs.on_message(filters.command("cry"))
 @capture_err
-async def cry(client,message):
+async def cry(client, message):
     m = await message.reply_text("Getting a random cry...")
     data = await get(f"{BASE_URL}sfw/cry")
     await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("hug"))
+
+@ufs.on_message(filters.command("hug"))
 @capture_err
-async def hug(client,message):
+async def hug(client, message):
     m = await message.reply_text("Getting a random hug...")
     data = await get(f"{BASE_URL}sfw/hug")
     await message.reply_animation(data["url"])
     return await m.delete()
-@app.on_message(filters.command("awoo"))
+
+
+@ufs.on_message(filters.command("awoo"))
 @capture_err
-async def awoo(client,message):
+async def awoo(client, message):
     m = await message.reply_text("Getting a random awoo...")
     data = await get(f"{BASE_URL}sfw/awoo")
     await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("kiss"))
+
+@ufs.on_message(filters.command("kiss"))
 @capture_err
-async def kiss(client,message):
+async def kiss(client, message):
     m = await message.reply_text("Getting a random kiss...")
     data = await get(f"{BASE_URL}sfw/kiss")
     await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("lick"))
+
+@ufs.on_message(filters.command("lick"))
 @capture_err
-async def lick(client,message):
+async def lick(client, message):
     m = await message.reply_text("Getting a random lick...")
     data = await get(f"{BASE_URL}sfw/lick")
     await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("pat"))
+
+@ufs.on_message(filters.command("pat"))
 @capture_err
-async def pat(client,message):
+async def pat(client, message):
     m = await message.reply_text("Getting a random pat...")
     data = await get(f"{BASE_URL}sfw/pat")
     await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("smug"))
+
+@ufs.on_message(filters.command("smug"))
 @capture_err
-async def smug(client,message):
+async def smug(client, message):
     m = await message.reply_text("Getting a random smug...")
     data = await get(f"{BASE_URL}sfw/smug")
     await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("bonk"))
+
+@ufs.on_message(filters.command("bonk"))
 @capture_err
-async def bonk(client,message):
+async def bonk(client, message):
     try:
         await message.delete()
     except:
@@ -143,41 +157,46 @@ async def bonk(client,message):
         await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("yeet"))
+
+@ufs.on_message(filters.command("yeet"))
 @capture_err
-async def yeet(client,message):
+async def yeet(client, message):
     m = await message.reply_text("Getting a random yeet...")
     data = await get(f"{BASE_URL}sfw/yeet")
     await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("blush"))
+
+@ufs.on_message(filters.command("blush"))
 @capture_err
-async def blush(client,message):
+async def blush(client, message):
     m = await message.reply_text("Getting a random blush...")
     data = await get(f"{BASE_URL}sfw/blush")
     await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("smile"))
+
+@ufs.on_message(filters.command("smile"))
 @capture_err
-async def smile(client,message):
+async def smile(client, message):
     m = await message.reply_text("Getting a random smile...")
     data = await get(f"{BASE_URL}sfw/smile")
     await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("wave"))
+
+@ufs.on_message(filters.command("wave"))
 @capture_err
-async def wave(client,message):
+async def wave(client, message):
     m = await message.reply_text("Getting a random wave...")
     data = await get(f"{BASE_URL}sfw/wave")
     await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("highfive"))
+
+@ufs.on_message(filters.command("highfive"))
 @capture_err
-async def highfive(client,message):
+async def highfive(client, message):
     m = await message.reply_text("Getting a random highfive...")
     try:
         await message.delete()
@@ -190,9 +209,10 @@ async def highfive(client,message):
         await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("handhold"))
+
+@ufs.on_message(filters.command("handhold"))
 @capture_err
-async def highfive(client,message):
+async def highfive(client, message):
     m = await message.reply_text("Getting a random handhold...")
     try:
         await message.delete()
@@ -205,9 +225,10 @@ async def highfive(client,message):
         await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("nom"))
+
+@ufs.on_message(filters.command("nom"))
 @capture_err
-async def highfive(client,message):
+async def highfive(client, message):
     m = await message.reply_text("Getting a random nom...")
     try:
         await message.delete()
@@ -221,9 +242,9 @@ async def highfive(client,message):
     return await m.delete()
 
 
-@app.on_message(filters.command("bite"))
+@ufs.on_message(filters.command("bite"))
 @capture_err
-async def highfive(client,message):
+async def highfive(client, message):
     m = await message.reply_text("Getting a random bite...")
     try:
         await message.delete()
@@ -236,9 +257,10 @@ async def highfive(client,message):
         await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("glomp"))
+
+@ufs.on_message(filters.command("glomp"))
 @capture_err
-async def glomp(client,message):
+async def glomp(client, message):
     m = await message.reply_text("Getting a random glomp...")
     try:
         await message.delete()
@@ -251,9 +273,10 @@ async def glomp(client,message):
         await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("slapgif"))
+
+@ufs.on_message(filters.command("slapgif"))
 @capture_err
-async def slap(client,message):
+async def slap(client, message):
     m = await message.reply_text("Getting a random slap...")
     try:
         await message.delete()
@@ -266,9 +289,10 @@ async def slap(client,message):
         await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("kill"))
+
+@ufs.on_message(filters.command("kill"))
 @capture_err
-async def kill(client,message):
+async def kill(client, message):
     m = await message.reply_text("Getting a random kill...")
     try:
         await message.delete()
@@ -281,9 +305,10 @@ async def kill(client,message):
         await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("kick"))
+
+@ufs.on_message(filters.command("kick"))
 @capture_err
-async def kick(client,message):
+async def kick(client, message):
     m = await message.reply_text("Getting a random kick...")
     try:
         await message.delete()
@@ -296,9 +321,10 @@ async def kick(client,message):
         await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("happy"))
+
+@ufs.on_message(filters.command("happy"))
 @capture_err
-async def happy(client,message):
+async def happy(client, message):
     m = await message.reply_text("Getting a random happy image...")
     try:
         await message.delete()
@@ -311,9 +337,10 @@ async def happy(client,message):
         await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("wink"))
+
+@ufs.on_message(filters.command("wink"))
 @capture_err
-async def happy(client,message):
+async def happy(client, message):
     m = await message.reply_text("Getting a random wink image...")
     try:
         await message.delete()
@@ -326,9 +353,10 @@ async def happy(client,message):
         await message.reply_animation(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("poke"))
+
+@ufs.on_message(filters.command("poke"))
 @capture_err
-async def happy(client,message):
+async def happy(client, message):
     m = await message.reply_text("Getting a random poke image...")
     try:
         await message.delete()
@@ -342,9 +370,9 @@ async def happy(client,message):
     return await m.delete()
 
 
-@app.on_message(filters.command("dance"))
+@ufs.on_message(filters.command("dance"))
 @capture_err
-async def happy(client,message):
+async def happy(client, message):
     m = await message.reply_text("Getting a random dance image...")
     try:
         await message.delete()
@@ -358,9 +386,9 @@ async def happy(client,message):
     return await m.delete()
 
 
-@app.on_message(filters.command("cringe"))
+@ufs.on_message(filters.command("cringe"))
 @capture_err
-async def happy(client,message):
+async def happy(client, message):
     m = await message.reply_text("Getting a random cringe image...")
     try:
         await message.delete()
@@ -374,39 +402,39 @@ async def happy(client,message):
     return await m.delete()
 
 
-
-@app.on_message(filters.command("nsfw") & filters.group)
+@ufs.on_message(filters.command("nsfw") & filters.group)
 @adminsOnly("can_change_info")
-async def nsfw(client,message):
-    if len(message.command)>=2 and message.command[1].lower() == "on":
+async def nsfw(client, message):
+    if len(message.command) >= 2 and message.command[1].lower() == "on":
         if await get_nsfw_status(message.chat.id) != False:
             return await message.reply_text("NSFW mode already enabled")
 
-        await set_nsfw_status(message.chat.id,True)
+        await set_nsfw_status(message.chat.id, True)
         return await message.reply_text("NSFW mode enabled")
-    elif len(message.command)>=2 and message.command[1].lower() == "off":
+    elif len(message.command) >= 2 and message.command[1].lower() == "off":
         if await get_nsfw_status(message.chat.id):
             m = await message.reply_text("Turning NSFW off...")
-            await set_nsfw_status(message.chat.id,False)
+            await set_nsfw_status(message.chat.id, False)
             return await m.edit("NSFW mode disabled")
         else:
             await message.reply_text("NSFW is already off!")
             return
     else:
         return await message.reply_text("Usage: /nsfw [on/off]")
-    
-@app.on_message(filters.command("nsfw") & filters.private)
-async def nsfw(client,message):
-    if len(message.command)>=2 and message.command[1].lower() == "on":
+
+
+@ufs.on_message(filters.command("nsfw") & filters.private)
+async def nsfw(client, message):
+    if len(message.command) >= 2 and message.command[1].lower() == "on":
         if await get_nsfw_status(message.chat.id) != False:
             return await message.reply_text("NSFW mode already enabled")
 
-        await set_nsfw_status(message.chat.id,True)
+        await set_nsfw_status(message.chat.id, True)
         return await message.reply_text("NSFW mode enabled")
-    elif len(message.command)>=2 and message.command[1].lower() == "off":
+    elif len(message.command) >= 2 and message.command[1].lower() == "off":
         if await get_nsfw_status(message.chat.id):
             m = await message.reply_text("Turning NSFW off...")
-            await set_nsfw_status(message.chat.id,False)
+            await set_nsfw_status(message.chat.id, False)
             return m.edit("NSFW is now off!")
         else:
             await message.reply_text("NSFW is already off!")
@@ -414,9 +442,10 @@ async def nsfw(client,message):
     else:
         return await message.reply_text("Usage: /nsfw [on/off]")
 
-@app.on_message(filters.command(["nsfwwaifu","nwaifu"]))
+
+@ufs.on_message(filters.command(["nsfwwaifu", "nwaifu"]))
 @capture_err
-async def nsfwwaifu(client,message):
+async def nsfwwaifu(client, message):
     if await get_nsfw_status(message.chat.id) == False:
         return await message.reply_text("NSFW mode is off! Turn it on to use this command!")
     m = await message.reply_text("Getting a random nsfw waifu image...")
@@ -437,9 +466,10 @@ async def nsfwwaifu(client,message):
             await message.reply_photo(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command(["nsfwneko"]))
+
+@ufs.on_message(filters.command(["nsfwneko"]))
 @capture_err
-async def nsfwneko(client,message):
+async def nsfwneko(client, message):
     if await get_nsfw_status(message.chat.id) == False:
         return await message.reply_text("NSFW mode is off! Turn it on to use this command!")
     m = await message.reply_text("Getting a random nsfw neko image...")
@@ -460,9 +490,10 @@ async def nsfwneko(client,message):
             await message.reply_photo(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command(["nsfwtrap","trap"]))
+
+@ufs.on_message(filters.command(["nsfwtrap", "trap"]))
 @capture_err
-async def nsfwtrap(client,message):
+async def nsfwtrap(client, message):
     if await get_nsfw_status(message.chat.id) == False:
         return await message.reply_text("NSFW mode is off! Turn it on to use this command!")
     m = await message.reply_text("Getting a random nsfw trap image...")
@@ -483,9 +514,10 @@ async def nsfwtrap(client,message):
             await message.reply_photo(data["url"])
     return await m.delete()
 
-@app.on_message(filters.command("blowjob"))
+
+@ufs.on_message(filters.command("blowjob"))
 @capture_err
-async def blowjob(client,message):
+async def blowjob(client, message):
     if await get_nsfw_status(message.chat.id) == False:
         return await message.reply_text("NSFW mode is off! Turn it on to use this command!")
     m = await message.reply_text("Getting a random nsfw blowjob image...")

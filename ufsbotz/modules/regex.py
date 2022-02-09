@@ -4,7 +4,7 @@ import sre_constants
 
 from pyrogram import filters
 
-from ufsbotz import app
+from ufsbotz import ufs
 from ufsbotz.utils.filter_groups import regex_group
 
 __MODULE__ = "Sed"
@@ -14,7 +14,7 @@ __HELP__ = "**Usage:**\ns/foo/bar"
 DELIMITERS = ("/", ":", "|", "_")
 
 
-@app.on_message(
+@ufs.on_message(
     filters.regex(r"s([{}]).*?\1.*".format("".join(DELIMITERS))),
     group=regex_group,
 )

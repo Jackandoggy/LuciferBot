@@ -4,7 +4,7 @@ from pyrogram import filters
 from pyrogram.types import Message
 
 from ufsbotz import (BOT_ID, SUDOERS,
-                     app, arq, eor)
+                     ufs, arq, eor)
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.utils.filter_groups import chatbot_group
 
@@ -37,7 +37,7 @@ async def chat_bot_toggle(db, message: Message):
 # Enabled | Disable Chatbot
 
 
-@app.on_message(filters.command("chatbot") & ~filters.edited)
+@ufs.on_message(filters.command("chatbot") & ~filters.edited)
 @capture_err
 async def chatbot_status(_, message: Message):
     if len(message.command) != 2:
@@ -60,7 +60,7 @@ async def type_and_send(message: Message):
     await message._client.send_chat_action(chat_id, "cancel")
 
 
-@app.on_message(
+@ufs.on_message(
     filters.text
     & filters.reply
     & ~filters.bot

@@ -4,7 +4,7 @@ from traceback import format_exc
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ufsbotz import SUDOERS, app, arq
+from ufsbotz import SUDOERS, ufs, arq
 from ufsbotz.core.decorators.errors import capture_err
 
 __MODULE__ = "Quotly"
@@ -41,7 +41,7 @@ def isArgInt(message: Message) -> list:
 
 
 
-@app.on_message(filters.command("q") & ~filters.private)
+@ufs.on_message(filters.command("q") & ~filters.private)
 @capture_err
 async def quotly_func(client, message: Message):
     if not message.reply_to_message:

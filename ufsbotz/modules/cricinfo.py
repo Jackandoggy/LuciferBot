@@ -1,4 +1,4 @@
-from ufsbotz import app
+from ufsbotz import ufs
 from pyrogram import filters
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.utils.http import get, resp_get
@@ -10,7 +10,7 @@ __HELP__ = """
 """
 
 
-@app.on_message(filters.command("cricinfo"))
+@ufs.on_message(filters.command("cricinfo"))
 @capture_err
 async def catfacts(client, message):
     score_page = "http://static.cricinfo.com/rss/livescores.xml"

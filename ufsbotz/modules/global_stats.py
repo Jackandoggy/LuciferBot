@@ -3,7 +3,7 @@ import asyncio
 from pyrogram import filters
 from pyrogram.errors import FloodWait
 
-from ufsbotz import BOT_ID, BOT_NAME, SUDOERS, app
+from ufsbotz import BOT_ID, BOT_NAME, SUDOERS, ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.modules import ALL_MODULES
 from ufsbotz.utils.dbfunctions import (get_blacklist_filters_count,
@@ -16,7 +16,7 @@ from ufsbotz.utils.http import get
 from ufsbotz.utils.inlinefuncs import keywords_list
 
 
-@app.on_message(
+@ufs.on_message(
     filters.command("clean_db") & filters.user(SUDOERS) & ~filters.edited
 )
 @capture_err
@@ -27,7 +27,7 @@ async def clean_db(_, message):
     )
     for served_chat in served_chats:
         try:
-            await app.get_chat_members(served_chat, BOT_ID)
+            await ufs.get_chat_members(served_chat, BOT_ID)
             await asyncio.sleep(2)
         except FloodWait as e:
             await asyncio.sleep(int(e.x))
@@ -37,12 +37,12 @@ async def clean_db(_, message):
     await m.edit("**Database Cleaned.**")
 
 
-@app.on_message(
+@ufs.on_message(
     filters.command("gstats") & filters.user(SUDOERS) & ~filters.edited
 )
 @capture_err
 async def global_stats(_, message):
-    m = await app.send_message(
+    m = await ufs.send_message(
         message.chat.id,
         text="__**Analysing Stats...**__",
         disable_web_page_preview=True,

@@ -4,7 +4,7 @@ from traceback import format_exc as err
 from pyrogram.errors.exceptions.forbidden_403 import ChatWriteForbidden
 from pyrogram.types import Message
 
-from ufsbotz import SUDOERS, app
+from ufsbotz import SUDOERS, ufs
 from ufsbotz.modules.admin import member_permissions
 
 
@@ -13,7 +13,7 @@ async def authorised(func, subFunc2, client, message, *args, **kwargs):
     try:
         await func(client, message, *args, **kwargs)
     except ChatWriteForbidden:
-        await app.leave_chat(chatID)
+        await ufs.leave_chat(chatID)
     except Exception as e:
         try:
             await message.reply_text(str(e.MESSAGE))
@@ -33,7 +33,7 @@ async def unauthorised(message: Message, permission, subFunc2):
     try:
         await message.reply_text(text)
     except ChatWriteForbidden:
-        await app.leave_chat(chatID)
+        await ufs.leave_chat(chatID)
     return subFunc2
 
 

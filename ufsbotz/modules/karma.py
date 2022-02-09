@@ -2,7 +2,7 @@ import re
 
 from pyrogram import filters
 
-from ufsbotz import app
+from ufsbotz import ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.decorators.permissions import adminsOnly
 from ufsbotz.core.sections import section
@@ -23,7 +23,7 @@ regex_upvote = r"^(\+|\+\+|\+1|thx|tnx|ty|thank you|thanx|thanks|pro|cool|good|ð
 regex_downvote = r"^(-|--|-1|ðŸ‘Ž|-- .+)$"
 
 
-@app.on_message(
+@ufs.on_message(
     filters.text
     & filters.group
     & filters.incoming
@@ -60,7 +60,7 @@ async def upvote(_, message):
     )
 
 
-@app.on_message(
+@ufs.on_message(
     filters.text
     & filters.group
     & filters.incoming
@@ -98,7 +98,7 @@ async def downvote(_, message):
     )
 
 
-@app.on_message(filters.command("karma") & filters.group)
+@ufs.on_message(filters.command("karma") & filters.group)
 @capture_err
 async def command_karma(_, message):
     chat_id = message.chat.id
@@ -123,7 +123,7 @@ async def command_karma(_, message):
             )
         if not karma_dicc:
             return await m.edit("No karma in DB for this chat.")
-        userdb = await get_user_id_and_usernames(app)
+        userdb = await get_user_id_and_usernames(ufs)
         karma = {}
         for user_idd, karma_count in karma_arranged.items():
             if limit > 15:
@@ -144,7 +144,7 @@ async def command_karma(_, message):
         await message.reply_text(f"**Total Points**: __{karma}__")
 
 
-@app.on_message(filters.command("karma_toggle") & ~filters.private)
+@ufs.on_message(filters.command("karma_toggle") & ~filters.private)
 @adminsOnly("can_change_info")
 async def captcha_state(_, message):
     usage = "**Usage:**\n/karma_toggle [ENABLE|DISABLE]"

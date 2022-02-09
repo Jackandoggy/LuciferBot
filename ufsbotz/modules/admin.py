@@ -3,7 +3,7 @@ import asyncio
 from pyrogram import filters
 from pyrogram.types import CallbackQuery, ChatPermissions, Message
 
-from ufsbotz import BOT_ID, SUDOERS, app
+from ufsbotz import BOT_ID, SUDOERS, ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.keyboard import ikb
 from ufsbotz.utils.dbfunctions import (add_warn, get_warn, int_to_alpha,
@@ -38,7 +38,7 @@ __HELP__ = """/ban - Ban A User
 async def member_permissions(chat_id: int, user_id: int):
     perms = []
     try:
-        member = await app.get_chat_member(chat_id, user_id)
+        member = await ufs.get_chat_member(chat_id, user_id)
     except Exception:
         return []
     if member.can_post_messages:
@@ -62,13 +62,13 @@ async def member_permissions(chat_id: int, user_id: int):
     return perms
 
 
-from wbb.core.decorators.permissions import adminsOnly
+from ufsbotz.core.decorators.permissions import adminsOnly
 
 
 async def list_admins(chat_id: int):
     return [
         member.user.id
-        async for member in app.iter_chat_members(
+        async for member in ufs.iter_chat_members(
             chat_id, filter="administrators"
         )
     ]
@@ -76,7 +76,7 @@ async def list_admins(chat_id: int):
 
 async def current_chat_permissions(chat_id):
     perms = []
-    perm = (await app.get_chat(chat_id)).permissions
+    perm = (await ufs.get_chat(chat_id)).permissions
     if perm.can_send_messages:
         perms.append("can_send_messages")
     if perm.can_send_media_messages:
@@ -99,13 +99,13 @@ async def current_chat_permissions(chat_id):
 
 
 async def list_members(group_id):
-    return [member.user.id async for member in app.iter_chat_members(group_id)]
+    return [member.user.id async for member in ufs.iter_chat_members(group_id)]
 
 
 # Purge Messages
 
 
-@app.on_message(filters.command("purge") & ~filters.edited & ~filters.private)
+@ufs.on_message(filters.command("purge") & ~filters.edited & ~filters.private)
 @adminsOnly("can_delete_messages")
 async def purgeFunc(_, message: Message):
     await message.delete()
@@ -124,7 +124,7 @@ async def purgeFunc(_, message: Message):
 
         # Max message deletion limit is 100
         if len(message_ids) == 100:
-            await app.delete_messages(
+            await ufs.delete_messages(
                 chat_id=chat_id,
                 message_ids=message_ids,
                 revoke=True,  # For both sides
@@ -135,7 +135,7 @@ async def purgeFunc(_, message: Message):
 
     # Delete if any messages left
     if message_ids:
-        await app.delete_messages(
+        await ufs.delete_messages(
             chat_id=chat_id,
             message_ids=message_ids,
             revoke=True,
@@ -145,7 +145,7 @@ async def purgeFunc(_, message: Message):
 # Kick members
 
 
-@app.on_message(
+@ufs.on_message(
     filters.command(["kick", "dkick"]) & ~filters.edited & ~filters.private
 )
 @adminsOnly("can_restrict_members")
@@ -163,14 +163,14 @@ async def kickFunc(_, message: Message):
         return await message.reply_text(
             "I can't kick an admin, You know the rules, so do i."
         )
-    mention = (await app.get_users(user_id)).mention
+    mention = (await ufs.get_users(user_id)).mention
     msg = f"""
 **Kicked User:** {mention}
 **Kicked By:** {message.from_user.mention if message.from_user else 'Anon'}
 **Reason:** {reason or 'No Reason Provided.'}"""
     if message.command[0][0] == "d":
         await message.reply_to_message.delete()
-    await message.chat.kick_member(user_id)
+    await message.chat.ban_member(user_id, 60)
     await message.reply_text(msg)
     await asyncio.sleep(1)
     await message.chat.unban_member(user_id)
@@ -179,7 +179,7 @@ async def kickFunc(_, message: Message):
 # Ban members
 
 
-@app.on_message(
+@ufs.on_message(
     filters.command(["ban", "dban", "tban"])
     & ~filters.edited
     & ~filters.private
@@ -204,7 +204,7 @@ async def banFunc(_, message: Message):
         )
 
     try:
-        mention = (await app.get_users(user_id)).mention
+        mention = (await ufs.get_users(user_id)).mention
     except IndexError:
         mention = (
             message.reply_to_message.sender_chat.title
@@ -228,7 +228,7 @@ async def banFunc(_, message: Message):
             msg += f"**Reason:** {temp_reason}"
         try:
             if len(time_value[:-1]) < 3:
-                await message.chat.kick_member(user_id, until_date=temp_ban)
+                await message.chat.ban_member(user_id, until_date=temp_ban)
                 await message.reply_text(msg)
             else:
                 await message.reply_text("You can't use more than 99")
@@ -237,14 +237,14 @@ async def banFunc(_, message: Message):
         return
     if reason:
         msg += f"**Reason:** {reason}"
-    await message.chat.kick_member(user_id)
+    await message.chat.ban_member(user_id, 60)
     await message.reply_text(msg)
 
 
 # Unban members
 
 
-@app.on_message(filters.command("unban") & ~filters.edited & ~filters.private)
+@ufs.on_message(filters.command("unban") & ~filters.edited & ~filters.private)
 @adminsOnly("can_restrict_members")
 async def unbanFunc(_, message: Message):
     # we don't need reasons for unban, also, we
@@ -260,14 +260,14 @@ async def unbanFunc(_, message: Message):
             "Provide a username or reply to a user's message to unban."
         )
     await message.chat.unban_member(user)
-    umention = (await app.get_users(user)).mention
+    umention = (await ufs.get_users(user)).mention
     await message.reply_text(f"Unbanned! {umention}")
 
 
 # Delete messages
 
 
-@app.on_message(filters.command("del") & ~filters.edited & ~filters.private)
+@ufs.on_message(filters.command("del") & ~filters.edited & ~filters.private)
 @adminsOnly("can_delete_messages")
 async def deleteFunc(_, message: Message):
     if not message.reply_to_message:
@@ -279,7 +279,7 @@ async def deleteFunc(_, message: Message):
 # Promote Members
 
 
-@app.on_message(
+@ufs.on_message(
     filters.command(["promote", "fullpromote"])
     & ~filters.edited
     & ~filters.private
@@ -287,10 +287,10 @@ async def deleteFunc(_, message: Message):
 @adminsOnly("can_promote_members")
 async def promoteFunc(_, message: Message):
     user_id = await extract_user(message)
-    umention = (await app.get_users(user_id)).mention
+    umention = (await ufs.get_users(user_id)).mention
     if not user_id:
         return await message.reply_text("I can't find that user.")
-    bot = await app.get_chat_member(message.chat.id, BOT_ID)
+    bot = await ufs.get_chat_member(message.chat.id, BOT_ID)
     if user_id == BOT_ID:
         return await message.reply_text("I can't promote myself.")
     if not bot.can_promote_members:
@@ -326,7 +326,7 @@ async def promoteFunc(_, message: Message):
 # Demote Member
 
 
-@app.on_message(filters.command("demote") & ~filters.edited & ~filters.private)
+@ufs.on_message(filters.command("demote") & ~filters.edited & ~filters.private)
 @adminsOnly("can_promote_members")
 async def demote(_, message: Message):
     user_id = await extract_user(message)
@@ -349,14 +349,14 @@ async def demote(_, message: Message):
         can_manage_chat=False,
         can_manage_voice_chats=False,
     )
-    umention = (await app.get_users(user_id)).mention
+    umention = (await ufs.get_users(user_id)).mention
     await message.reply_text(f"Demoted! {umention}")
 
 
 # Pin Messages
 
 
-@app.on_message(filters.command(["pin", "unpin"]) & ~filters.edited & ~filters.private)
+@ufs.on_message(filters.command(["pin", "unpin"]) & ~filters.edited & ~filters.private)
 @adminsOnly("can_pin_messages")
 async def pin(_, message: Message):
     if not message.reply_to_message:
@@ -381,7 +381,7 @@ async def pin(_, message: Message):
 # Mute members
 
 
-@app.on_message(
+@ufs.on_message(
     filters.command(["mute", "tmute"]) & ~filters.edited & ~filters.private
 )
 @adminsOnly("can_restrict_members")
@@ -399,7 +399,7 @@ async def mute(_, message: Message):
         return await message.reply_text(
             "I can't mute an admin, You know the rules, so do i."
         )
-    mention = (await app.get_users(user_id)).mention
+    mention = (await ufs.get_users(user_id)).mention
     keyboard = ikb({"🚨   Unmute   🚨": f"unmute_{user_id}"})
     msg = (
         f"**Muted User:** {mention}\n"
@@ -435,33 +435,33 @@ async def mute(_, message: Message):
 # Unmute members
 
 
-@app.on_message(filters.command("unmute") & ~filters.edited & ~filters.private)
+@ufs.on_message(filters.command("unmute") & ~filters.edited & ~filters.private)
 @adminsOnly("can_restrict_members")
 async def unmute(_, message: Message):
     user_id = await extract_user(message)
     if not user_id:
         return await message.reply_text("I can't find that user.")
     await message.chat.unban_member(user_id)
-    umention = (await app.get_users(user_id)).mention
+    umention = (await ufs.get_users(user_id)).mention
     await message.reply_text(f"Unmuted! {umention}")
 
 
 # Ban deleted accounts
 
 
-@app.on_message(filters.command("ban_ghosts") & ~filters.private)
+@ufs.on_message(filters.command("ban_ghosts") & ~filters.private)
 @adminsOnly("can_restrict_members")
 async def ban_deleted_accounts(_, message: Message):
     chat_id = message.chat.id
     deleted_users = []
-    async for i in app.iter_chat_members(chat_id):
+    async for i in ufs.iter_chat_members(chat_id):
         if i.user.is_deleted:
             deleted_users.append(i.user.id)
     if deleted_users:
         banned_users = 0
         for deleted_user in deleted_users:
             try:
-                await message.chat.kick_member(deleted_user)
+                await message.chat.ban_member(deleted_user)
             except Exception:
                 pass
             banned_users += 1
@@ -470,7 +470,7 @@ async def ban_deleted_accounts(_, message: Message):
         await message.reply_text("There are no deleted accounts in this chat")
 
 
-@app.on_message(
+@ufs.on_message(
     filters.command(["warn", "dwarn"]) & ~filters.edited & ~filters.private
 )
 @adminsOnly("can_restrict_members")
@@ -494,7 +494,7 @@ async def warn_user(_, message: Message):
     if user_id not in (await list_members(chat_id)):
         return await message.reply_text("This user isn't here.")
     user, warns = await asyncio.gather(
-        app.get_users(user_id),
+        ufs.get_users(user_id),
         get_warn(chat_id, await int_to_alpha(user_id)),
     )
     mention = user.mention
@@ -503,7 +503,7 @@ async def warn_user(_, message: Message):
     if message.command[0][0] == "d":
         await message.reply_to_message.delete()
     if warns >= 2:
-        await message.chat.kick_member(user_id)
+        await message.chat.ban_member(user_id, 60)
         await message.reply_text(
             f"Number of warns of {mention} exceeded, BANNED!"
         )
@@ -519,7 +519,7 @@ async def warn_user(_, message: Message):
         await add_warn(chat_id, await int_to_alpha(user_id), warn)
 
 
-@app.on_callback_query(filters.regex("unwarn_"))
+@ufs.on_callback_query(filters.regex("unwarn_"))
 async def remove_warning(_, cq: CallbackQuery):
     from_user = cq.from_user
     chat_id = cq.message.chat.id
@@ -548,7 +548,7 @@ async def remove_warning(_, cq: CallbackQuery):
 # Rmwarns
 
 
-@app.on_message(
+@ufs.on_message(
     filters.command("rmwarns") & ~filters.edited & ~filters.private
 )
 @adminsOnly("can_restrict_members")
@@ -573,14 +573,14 @@ async def remove_warnings(_, message: Message):
 # Warns
 
 
-@app.on_message(filters.command("warns") & ~filters.edited & ~filters.private)
+@ufs.on_message(filters.command("warns") & ~filters.edited & ~filters.private)
 @capture_err
 async def check_warns(_, message: Message):
     user_id = await extract_user(message)
     if not user_id:
         return await message.reply_text("I can't find that user.")
     warns = await get_warn(message.chat.id, await int_to_alpha(user_id))
-    mention = (await app.get_users(user_id)).mention
+    mention = (await ufs.get_users(user_id)).mention
     if warns:
         warns = warns["warns"]
     else:
@@ -591,7 +591,7 @@ async def check_warns(_, message: Message):
 # Report
 
 
-@app.on_message(
+@ufs.on_message(
     (
             filters.command("report")
             | filters.command(["admins", "admin"], prefixes="@")
@@ -617,7 +617,7 @@ async def report_user(_, message):
 
     user_mention = message.reply_to_message.from_user.mention
     text = f"Reported {user_mention} to admins!"
-    admin_data = await app.get_chat_members(
+    admin_data = await ufa.get_chat_members(
         chat_id=message.chat.id, filter="administrators"
     )  # will it giv floods ?
     for admin in admin_data:

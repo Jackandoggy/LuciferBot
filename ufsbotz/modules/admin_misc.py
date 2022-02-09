@@ -2,7 +2,7 @@ import os
 
 from pyrogram import filters
 
-from ufsbotz import app
+from ufsbotz import ufs
 from ufsbotz.core.decorators.permissions import adminsOnly
 
 __MODULE__ = "Admin Miscs"
@@ -13,7 +13,7 @@ __HELP__ = """
 """
 
 
-@app.on_message(filters.command("set_chat_title") & ~filters.private)
+@ufs.on_message(filters.command("set_chat_title") & ~filters.private)
 @adminsOnly("can_change_info")
 async def set_chat_title(_, message):
     if len(message.command) < 2:
@@ -26,7 +26,7 @@ async def set_chat_title(_, message):
     )
 
 
-@app.on_message(filters.command("set_user_title") & ~filters.private)
+@ufs.on_message(filters.command("set_user_title") & ~filters.private)
 @adminsOnly("can_change_info")
 async def set_user_title(_, message):
     if not message.reply_to_message:
@@ -44,13 +44,13 @@ async def set_user_title(_, message):
             "**Usage:**\n/set_user_title NEW ADMINISTRATOR TITLE"
         )
     title = message.text.split(None, 1)[1]
-    await app.set_administrator_title(chat_id, from_user.id, title)
+    await ufs.set_administrator_title(chat_id, from_user.id, title)
     await message.reply_text(
         f"Successfully Changed {from_user.mention}'s Admin Title To {title}"
     )
 
 
-@app.on_message(filters.command("set_chat_photo") & ~filters.private)
+@ufs.on_message(filters.command("set_chat_photo") & ~filters.private)
 @adminsOnly("can_change_info")
 async def set_chat_photo(_, message):
     reply = message.reply_to_message

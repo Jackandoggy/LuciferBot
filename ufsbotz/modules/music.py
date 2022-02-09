@@ -11,7 +11,7 @@ import youtube_dl
 from pyrogram import filters
 
 from ufsbotz import aiohttpsession as session
-from ufsbotz import app, arq
+from ufsbotz import ufs, arq
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.utils.pastebin import paste
 
@@ -67,7 +67,7 @@ def download_youtube_audio(url: str):
     return [title, performer, duration, audio_file, thumbnail_file]
 
 
-@app.on_message(filters.command("ytmusic"))
+@ufs.on_message(filters.command("ytmusic"))
 @capture_err
 async def music(_, message):
     global is_downloading
@@ -124,7 +124,7 @@ async def download_song(url):
 # Jiosaavn Music
 
 
-@app.on_message(filters.command("saavn") & ~filters.edited)
+@ufs.on_message(filters.command("saavn") & ~filters.edited)
 @capture_err
 async def jssong(_, message):
     global is_downloading
@@ -167,7 +167,7 @@ async def jssong(_, message):
 # Lyrics
 
 
-@app.on_message(filters.command("lyrics"))
+@ufs.on_message(filters.command("lyrics"))
 async def lyrics_func(_, message):
     if len(message.command) < 2:
         return await message.reply_text("**Usage:**\n/lyrics [QUERY]")

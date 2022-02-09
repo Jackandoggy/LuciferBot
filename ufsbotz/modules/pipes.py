@@ -3,7 +3,7 @@ import asyncio
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ufsbotz import BOT_ID, SUDOERS, app
+from ufsbotz import BOT_ID, SUDOERS, ufs
 from ufsbotz.core.decorators.errors import capture_err
 
 __MODULE__ = "Pipes"
@@ -37,7 +37,7 @@ pipes_list_bot = {}
 pipes_list_userbot = {}
 
 
-@app.on_message(~filters.me, group=500)
+@ufs.on_message(~filters.me, group=500)
 @capture_err
 async def pipes_worker_bot(_, message: Message):
     chat_id = message.chat.id
@@ -45,7 +45,7 @@ async def pipes_worker_bot(_, message: Message):
         await message.forward(pipes_list_bot[chat_id])
 
 
-@app.on_message(filters.command("activate_pipe") & filters.user(SUDOERS))
+@ufs.on_message(filters.command("activate_pipe") & filters.user(SUDOERS))
 @capture_err
 async def activate_pipe_func(_, message: Message):
     global pipes_list_bot, pipes_list_userbot
@@ -75,7 +75,7 @@ async def activate_pipe_func(_, message: Message):
     await message.reply_text("Activated pipe.")
 
 
-@app.on_message(filters.command("deactivate_pipe") & filters.user(SUDOERS))
+@ufs.on_message(filters.command("deactivate_pipe") & filters.user(SUDOERS))
 @capture_err
 async def deactivate_pipe_func(_, message: Message):
     global pipes_list_bot, pipes_list_userbot
@@ -97,7 +97,7 @@ async def deactivate_pipe_func(_, message: Message):
     await message.reply_text("Deactivated pipe.")
 
 
-@app.on_message(filters.command("pipes") & filters.user(SUDOERS))
+@ufs.on_message(filters.command("pipes") & filters.user(SUDOERS))
 @capture_err
 async def show_pipes_func(_, message: Message):
     pipes_list_bot.update(pipes_list_userbot)

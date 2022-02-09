@@ -6,7 +6,7 @@ from pyrogram.types import (CallbackQuery, ChatPermissions,
                             InlineKeyboardButton, InlineKeyboardMarkup,
                             Message)
 
-from ufsbotz import SUDOERS, app
+from ufsbotz import SUDOERS, ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.decorators.permissions import adminsOnly
 from ufsbotz.modules.admin import list_admins, member_permissions
@@ -30,7 +30,7 @@ def reset_flood(chat_id, user_id=0):
             DB[chat_id][user] = 0
 
 
-@app.on_message(
+@ufs.on_message(
     ~filters.service
     & ~filters.me
     & ~filters.private
@@ -106,7 +106,7 @@ async def flood_control_func(_, message: Message):
     DB[chat_id][user_id] += 1
 
 
-@app.on_callback_query(filters.regex("unmute_"))
+@ufs.on_callback_query(filters.regex("unmute_"))
 async def flood_callback_func(_, cq: CallbackQuery):
     from_user = cq.from_user
     permissions = await member_permissions(cq.message.chat.id, from_user.id)
@@ -125,7 +125,7 @@ async def flood_callback_func(_, cq: CallbackQuery):
     await cq.message.edit(text)
 
 
-@app.on_message(filters.command("flood") & ~filters.private)
+@ufs.on_message(filters.command("flood") & ~filters.private)
 @adminsOnly("can_change_info")
 async def flood_toggle(_, message: Message):
     if len(message.command) != 2:

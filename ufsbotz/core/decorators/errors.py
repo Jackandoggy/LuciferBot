@@ -6,7 +6,7 @@ from functools import wraps
 
 from pyrogram.errors.exceptions.forbidden_403 import ChatWriteForbidden
 
-from ufsbotz import LOG_GROUP_ID, app
+from ufsbotz import LOG_GROUP_ID, ufs
 
 
 def split_limits(text):
@@ -33,7 +33,7 @@ def capture_err(func):
         try:
             return await func(client, message, *args, **kwargs)
         except ChatWriteForbidden:
-            await app.leave_chat(message.chat.id)
+            await ufs.leave_chat(message.chat.id)
             return
         except Exception as err:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -51,7 +51,7 @@ def capture_err(func):
                 ),
             )
             for x in error_feedback:
-                await app.send_message(LOG_GROUP_ID, x)
+                await ufs.send_message(LOG_GROUP_ID, x)
             raise err
 
     return capture

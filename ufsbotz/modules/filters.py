@@ -2,7 +2,7 @@ import re
 
 from pyrogram import filters
 
-from ufsbotz import app
+from ufsbotz import ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.decorators.permissions import adminsOnly
 from ufsbotz.core.keyboard import ikb
@@ -23,7 +23,7 @@ Checkout /markdownhelp to know more about formattings and other syntax.
 """
 
 
-@app.on_message(filters.command("filter") & ~filters.edited & ~filters.private)
+@ufs.on_message(filters.command("filter") & ~filters.edited & ~filters.private)
 @adminsOnly("can_change_info")
 async def save_filters(_, message):
     if len(message.command) < 2 or not message.reply_to_message:
@@ -54,7 +54,7 @@ async def save_filters(_, message):
     await message.reply_text(f"__**Saved filter {name}.**__")
 
 
-@app.on_message(
+@ufs.on_message(
     filters.command("filters") & ~filters.edited & ~filters.private
 )
 @capture_err
@@ -69,7 +69,7 @@ async def get_filterss(_, message):
     await message.reply_text(msg)
 
 
-@app.on_message(filters.command("stop") & ~filters.edited & ~filters.private)
+@ufs.on_message(filters.command("stop") & ~filters.edited & ~filters.private)
 @adminsOnly("can_change_info")
 async def del_filter(_, message):
     if len(message.command) < 2:
@@ -85,7 +85,7 @@ async def del_filter(_, message):
         await message.reply_text("**No such filter.**")
 
 
-@app.on_message(
+@ufs.on_message(
     filters.text
     & ~filters.edited
     & ~filters.private

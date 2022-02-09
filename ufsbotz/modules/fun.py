@@ -1,10 +1,11 @@
 from pyrogram import filters
 from pyrogram.types import Message
 import random
-from ufsbotz import SUDOERS, app, arq,BOT_USERNAME
+from ufsbotz import SUDOERS, ufs, arq, BOT_USERNAME
 from ufsbotz.core.decorators.errors import capture_err
 import ufsbotz.utils.fun_strings as fun_strings
 from ufsbotz import BOT_ID, BOT_NAME
+
 __MODULE__ = "Fun"
 __HELP__ = """
 /weebify - To weebify a message.
@@ -12,7 +13,6 @@ __HELP__ = """
 /slap - To slap someone.
 
 """
-
 
 normiefont = [
     "a",
@@ -69,29 +69,31 @@ weebyfont = [
     "乂",
     "丫",
     "乙"
-,
+    ,
 ]
+
 
 def weebifytext(text):
     string = text.lower().replace(" ", "  ")
     for normiecharacter in string:
-            if normiecharacter in normiefont:
-                weebycharacter = weebyfont[normiefont.index(normiecharacter)]
-                string = string.replace(normiecharacter, weebycharacter)
+        if normiecharacter in normiefont:
+            weebycharacter = weebyfont[normiefont.index(normiecharacter)]
+            string = string.replace(normiecharacter, weebycharacter)
     return string
 
 
-@app.on_message(filters.command(["weebify",f"weebify@{BOT_USERNAME}"]))
+@ufs.on_message(filters.command(["weebify", f"weebify@{BOT_USERNAME}"]))
 @capture_err
 async def weebify(client, message: Message):
     if message.reply_to_message:
         return await message.reply_text(weebifytext(message.reply_to_message.text))
-    if len(message.command)<2:
+    if len(message.command) < 2:
         return await message.reply_text("reply **/weebify** To a message for weebify or use **/weebify Your Text**")
     message.command.pop(0)
     return await message.reply_text(weebifytext(' '.join(message.command)))
 
-@app.on_message(filters.command(["slap",f"slap@{BOT_USERNAME}"]) & ~filters.private)
+
+@ufs.on_message(filters.command(["slap", f"slap@{BOT_USERNAME}"]) & ~filters.private)
 @capture_err
 async def slap(client, message: Message):
     if message.reply_to_message:
@@ -114,7 +116,7 @@ async def slap(client, message: Message):
             hit = random.choice(fun_strings.HIT)
             throw = random.choice(fun_strings.THROW)
             reply = temp.format(user1=user1, user2=user2, item=item, hits=hit, throws=throw)
-            return await message.reply_text(reply,reply_to_message_id=message.reply_to_message.message_id)
+            return await message.reply_text(reply, reply_to_message_id=message.reply_to_message.message_id)
     else:
         user1 = BOT_NAME
         try:
@@ -128,12 +130,15 @@ async def slap(client, message: Message):
         reply = temp.format(user1=user1, user2=user2, item=item, hits=hit, throws=throw)
         return await message.reply_text(reply)
 
-@app.on_message(filters.command(["wish",f"wish@{BOT_USERNAME}"]))
+
+@ufs.on_message(filters.command(["wish", f"wish@{BOT_USERNAME}"]))
 @capture_err
 async def wish(client, message: Message):
     if message.reply_to_message:
-        return await message.reply_text(f"Your Wish **{message.reply_to_message.text}** Has {random.randint(1,99)}% Succession Rate!")
-    if len(message.command)<2:
+        return await message.reply_text(
+            f"Your Wish **{message.reply_to_message.text}** Has {random.randint(1, 99)}% Succession Rate!")
+    if len(message.command) < 2:
         return await message.reply_text("reply **/wish** To a message for wish or use **/wish Your Wish**")
     message.command.pop(0)
-    return await message.reply_text(f"Your Wish **{' '.join(message.command)}** Has {random.randint(1,99)}% Succession Rate!")
+    return await message.reply_text(
+        f"Your Wish **{' '.join(message.command)}** Has {random.randint(1, 99)}% Succession Rate!")

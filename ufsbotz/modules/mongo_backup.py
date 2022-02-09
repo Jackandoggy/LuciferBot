@@ -4,10 +4,10 @@ from os import system as execute
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ufsbotz import MONGO_URL, SUDOERS, app
+from ufsbotz import MONGO_URL, SUDOERS, ufs
 
 
-@app.on_message(filters.command("backup") & filters.user(SUDOERS))
+@ufs.on_message(filters.command("backup") & filters.user(SUDOERS))
 async def backup(_, message: Message):
     if message.chat.type != "private":
         return await message.reply("This command can only be used in private")

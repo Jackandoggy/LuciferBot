@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pyrogram import filters
 
-from ufsbotz import app
+from ufsbotz import ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.utils.dbfunctions import get_couple, save_couple
 
@@ -32,7 +32,7 @@ today = str(dt()[0])
 tomorrow = str(dt_tom())
 
 
-@app.on_message(filters.command(["detect_gay", "couple"]) & ~filters.edited & ~filters.private)
+@ufs.on_message(filters.command(["detect_gay", "couple"]) & ~filters.edited & ~filters.private)
 @capture_err
 async def couple(_, message):
     try:
@@ -40,7 +40,7 @@ async def couple(_, message):
         is_selected = await get_couple(chat_id, today)
         if not is_selected:
             list_of_users = []
-            async for i in app.iter_chat_members(message.chat.id):
+            async for i in ufs.iter_chat_members(message.chat.id):
                 if not i.user.is_bot:
                     list_of_users.append(i.user.id)
             if len(list_of_users) < 2:
@@ -49,14 +49,14 @@ async def couple(_, message):
             c2_id = random.choice(list_of_users)
             while c1_id == c2_id:
                 c1_id = random.choice(list_of_users)
-            c1_mention = (await app.get_users(c1_id)).mention
-            c2_mention = (await app.get_users(c2_id)).mention
+            c1_mention = (await ufs.get_users(c1_id)).mention
+            c2_mention = (await ufs.get_users(c2_id)).mention
 
             couple_selection_message = f"""**Couple of the day:**
 {c1_mention} + {c2_mention} = ❤️
 
 __New couple of the day may be chosen at 12AM {tomorrow}__"""
-            await app.send_message(
+            await ufs.send_message(
                 message.chat.id, text=couple_selection_message
             )
             couple = {"c1_id": c1_id, "c2_id": c2_id}
@@ -65,13 +65,13 @@ __New couple of the day may be chosen at 12AM {tomorrow}__"""
         else:
             c1_id = int(is_selected["c1_id"])
             c2_id = int(is_selected["c2_id"])
-            c1_name = (await app.get_users(c1_id)).first_name
-            c2_name = (await app.get_users(c2_id)).first_name
+            c1_name = (await ufs.get_users(c1_id)).first_name
+            c2_name = (await ufs.get_users(c2_id)).first_name
             couple_selection_message = f"""Couple of the day:
 [{c1_name}](tg://openmessage?user_id={c1_id}) + [{c2_name}](tg://openmessage?user_id={c2_id}) = ❤️
 
 __New couple of the day may be chosen at 12AM {tomorrow}__"""
-            await app.send_message(
+            await ufs.send_message(
                 message.chat.id, text=couple_selection_message
             )
     except Exception as e:

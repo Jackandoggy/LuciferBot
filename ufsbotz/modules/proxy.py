@@ -3,7 +3,7 @@ from asyncio import get_event_loop, sleep
 from pyrogram import filters
 from pyrogram.types import CallbackQuery, Message
 
-from ufsbotz import app, arq
+from ufsbotz import ufs, arq
 from ufsbotz.core.keyboard import ikb
 
 __MODULE__ = "Proxy"
@@ -34,7 +34,7 @@ def url_from_proxy(proxy: str) -> str:
     )
 
 
-@app.on_message(filters.command("proxy") & ~filters.edited)
+@ufs.on_message(filters.command("proxy") & ~filters.edited)
 async def proxy_func(_, message: Message):
     if len(proxies) == 0:
         await sleep(0.5)
@@ -59,7 +59,7 @@ async def proxy_func(_, message: Message):
     )
 
 
-@app.on_callback_query(filters.regex(r"proxy_arq_"))
+@ufs.on_callback_query(filters.regex(r"proxy_arq_"))
 async def proxy_callback_func(_, cq: CallbackQuery):
     data = cq.data
     index = int(data.split("_")[-1])

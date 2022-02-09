@@ -1,4 +1,4 @@
-from ufsbotz import app
+from ufsbotz import ufs
 from pyrogram import filters
 from imdb import IMDb
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -6,7 +6,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 ia = IMDb()
 
 
-@app.on_message(filters.command("imdb"))
+@ufs.on_message(filters.command("imdb"))
 async def imdb(client, message):
     """
     .imdb <movie>

@@ -1,4 +1,4 @@
-from ufsbotz import app
+from ufsbotz import ufs
 from pyrogram import filters
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.utils.http import get,resp_get
@@ -10,14 +10,14 @@ __HELP__ = """/randomcat - To Get Random Photo of Cat.
 """
 
 
-@app.on_message(filters.command("randomcat"))
+@ufs.on_message(filters.command("randomcat"))
 @capture_err
 async def randomcat(_, message):
     cat = await get("https://aws.random.cat/meow")
     await message.reply_photo(cat["file"])
 
 
-@app.on_message(filters.command("cats"))
+@ufs.on_message(filters.command("cats"))
 @capture_err
 async def cats(_, message):
     cat = await get("https://thatcopy.pw/catapi/rest/")

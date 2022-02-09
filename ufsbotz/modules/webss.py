@@ -1,7 +1,7 @@
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ufsbotz import app
+from ufsbotz import ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.utils.http import get
 
@@ -9,7 +9,7 @@ __MODULE__ = "WebSS"
 __HELP__ = "/webss [URL] - Take A Screenshot Of A Webpage"
 
 
-@app.on_message(filters.command("webss"))
+@ufs.on_message(filters.command("webss"))
 @capture_err
 async def take_ss(_, message: Message):
     try:

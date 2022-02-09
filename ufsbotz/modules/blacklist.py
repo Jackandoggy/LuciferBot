@@ -4,7 +4,7 @@ from time import time
 from pyrogram import filters
 from pyrogram.types import ChatPermissions
 
-from ufsbotz import SUDOERS, app
+from ufsbotz import SUDOERS, ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.decorators.permissions import adminsOnly
 from ufsbotz.modules.admin import list_admins
@@ -21,7 +21,7 @@ __HELP__ = """
 """
 
 
-@app.on_message(
+@ufs.on_message(
     filters.command("blacklist") & ~filters.edited & ~filters.private
 )
 @adminsOnly("can_restrict_members")
@@ -38,7 +38,7 @@ async def save_filters(_, message):
     await message.reply_text(f"__**Blacklisted {word}.**__")
 
 
-@app.on_message(
+@ufs.on_message(
     filters.command("blacklisted") & ~filters.edited & ~filters.private
 )
 @capture_err
@@ -53,7 +53,7 @@ async def get_filterss(_, message):
         await message.reply_text(msg)
 
 
-@app.on_message(
+@ufs.on_message(
     filters.command("whitelist") & ~filters.edited & ~filters.private
 )
 @adminsOnly("can_restrict_members")
@@ -70,7 +70,7 @@ async def del_filter(_, message):
     await message.reply_text("**No such blacklist filter.**")
 
 
-@app.on_message(filters.text & ~filters.private, group=blacklist_filters_group)
+@ufs.on_message(filters.text & ~filters.private, group=blacklist_filters_group)
 @capture_err
 async def blacklist_filters_re(_, message):
     text = message.text.lower().strip()
@@ -96,7 +96,7 @@ async def blacklist_filters_re(_, message):
                 )
             except Exception:
                 return
-            return await app.send_message(
+            return await ufs.send_message(
                 chat_id,
                 f"Muted {user.mention} [`{user.id}`] for 1 hour "
                 + f"due to a blacklist match on {word}.",

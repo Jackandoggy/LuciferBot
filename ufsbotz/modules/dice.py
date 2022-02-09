@@ -1,7 +1,7 @@
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ufsbotz import SUDOERS, app
+from ufsbotz import SUDOERS, ufs
 
 __MODULE__ = "Dice"
 __HELP__ = """
@@ -10,7 +10,7 @@ __HELP__ = """
 """
 
 
-@app.on_message(filters.command("dice"))
+@ufs.on_message(filters.command("dice"))
 async def throw_dice(client, message: Message):
     six = (message.from_user.id in SUDOERS) if message.from_user else False
 

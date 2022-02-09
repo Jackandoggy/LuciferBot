@@ -2,7 +2,7 @@ from pyrogram import filters
 from pyrogram.errors.exceptions.bad_request_400 import ChatNotModified
 from pyrogram.types import ChatPermissions
 
-from ufsbotz import SUDOERS, app
+from ufsbotz import SUDOERS, ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.decorators.permissions import adminsOnly
 from ufsbotz.modules.admin import current_chat_permissions, list_admins
@@ -55,7 +55,7 @@ async def tg_lock(message, permissions: list, perm: str, lock: bool):
     permissions = {perm: True for perm in list(set(permissions))}
 
     try:
-        await app.set_chat_permissions(
+        await ufs.set_chat_permissions(
             message.chat.id, ChatPermissions(**permissions)
         )
     except ChatNotModified:
@@ -66,7 +66,7 @@ async def tg_lock(message, permissions: list, perm: str, lock: bool):
     await message.reply_text(("Locked." if lock else "Unlocked."))
 
 
-@app.on_message(filters.command(["lock", "unlock"]) & ~filters.private)
+@ufs.on_message(filters.command(["lock", "unlock"]) & ~filters.private)
 @adminsOnly("can_restrict_members")
 async def locks_func(_, message):
     if len(message.command) != 2:
@@ -89,11 +89,11 @@ async def locks_func(_, message):
             bool(state == "lock"),
         )
     elif parameter == "all" and state == "lock":
-        await app.set_chat_permissions(chat_id, ChatPermissions())
+        await ufs.set_chat_permissions(chat_id, ChatPermissions())
         await message.reply_text(f"Locked Everything in {message.chat.title}")
 
     elif parameter == "all" and state == "unlock":
-        await app.set_chat_permissions(
+        await ufs.set_chat_permissions(
          chat_id,
          ChatPermissions(
             can_send_messages=True,
@@ -109,7 +109,7 @@ async def locks_func(_, message):
                                  )
         await message.reply(f"Unlocked Everything in {message.chat.title}")
                   
-@app.on_message(filters.command("locks") & ~filters.private)
+@ufs.on_message(filters.command("locks") & ~filters.private)
 @capture_err
 async def locktypes(_, message):
     permissions = await current_chat_permissions(message.chat.id)
@@ -121,7 +121,7 @@ async def locktypes(_, message):
     await message.reply_text(perms)
 
 
-@app.on_message(filters.text & ~filters.private, group=69)
+@ufs.on_message(filters.text & ~filters.private, group=69)
 async def url_detector(_, message):
     user = message.from_user
     chat_id = message.chat.id

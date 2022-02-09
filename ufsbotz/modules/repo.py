@@ -1,6 +1,6 @@
 from pyrogram import filters
 
-from ufsbotz import app
+from ufsbotz import ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.utils.http import get
 
@@ -8,7 +8,7 @@ __MODULE__ = "Repo"
 __HELP__ = "/repo - To Get My Github Repository Link " "And Support Group Link"
 
 
-@app.on_message(filters.command("repo") & ~filters.edited)
+@ufs.on_message(filters.command("repo") & ~filters.edited)
 @capture_err
 async def repo(_, message):
     users = await get(
@@ -24,6 +24,6 @@ async def repo(_, message):
 | Contributors |
 ----------------```
 {list_of_users}"""
-    await app.send_message(
+    await ufs.send_message(
         message.chat.id, text=text, disable_web_page_preview=True
     )

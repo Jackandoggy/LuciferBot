@@ -7,7 +7,7 @@ from gtts import gTTS
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ufsbotz import app
+from ufsbotz import ufs
 
 
 def convert(text):
@@ -20,7 +20,7 @@ def convert(text):
     return audio
 
 
-@app.on_message(filters.command("tts"))
+@ufs.on_message(filters.command("tts"))
 async def text_to_speech(_, message: Message):
     if not message.reply_to_message:
         return await message.reply_text("Reply to some text ffs.")

@@ -83,7 +83,7 @@ async def inline_help_func(__HELP__):
 
 async def alive_function(answers):
     buttons = InlineKeyboard(row_width=2)
-    bot_state = "Dead" if not await app.get_me() else "Alive"
+    bot_state = "Dead" if not await ufs.get_me() else "Alive"
     buttons.add(
         InlineKeyboardButton("Stats", callback_data="stats_callback"),
         InlineKeyboardButton(

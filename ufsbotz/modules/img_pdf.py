@@ -7,7 +7,7 @@ from PIL import Image
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ufsbotz import app
+from ufsbotz import ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.sections import section
 
@@ -65,7 +65,7 @@ async def convert(
             remove(file)
 
 
-@app.on_message(filters.command("pdf"))
+@ufs.on_message(filters.command("pdf"))
 @capture_err
 async def img_to_pdf(_, message: Message):
     reply = message.reply_to_message
@@ -78,7 +78,7 @@ async def img_to_pdf(_, message: Message):
     start_time = time()
 
     if reply.media_group_id:
-        messages = await app.get_media_group(
+        messages = await ufs.get_media_group(
             message.chat.id,
             reply.message_id,
         )

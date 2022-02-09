@@ -1,13 +1,13 @@
 import traceback
 
-from ufsbotz import app
+from ufsbotz import ufs
 from ufsbotz.utils.inlinefuncs import *
 
 __MODULE__ = "Inline"
 __HELP__ = """See inline for help related to inline"""
 
 
-@app.on_inline_query()
+@ufs.on_inline_query()
 async def inline_query_handler(client, query):
     try:
         text = query.query.strip().lower()

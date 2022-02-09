@@ -2,7 +2,7 @@ from re import findall
 
 from pyrogram import filters
 
-from ufsbotz import SUDOERS, app, eor
+from ufsbotz import SUDOERS, ufs, eor
 from ufsbotz import LOG_GROUP_ID as USERBOT_ID
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.decorators.permissions import adminsOnly
@@ -26,7 +26,7 @@ Checkout /markdownhelp to know more about formattings and other syntax.
 USERBOT_PREFIX = "."
 
 
-@app.on_message(filters.command("save") & ~filters.edited & ~filters.private)
+@ufs.on_message(filters.command("save") & ~filters.edited & ~filters.private)
 @adminsOnly("can_change_info")
 async def save_notee(_, message):
     if len(message.command) < 2 or not message.reply_to_message:
@@ -60,7 +60,7 @@ async def save_notee(_, message):
         await eor(message, text=f"__**Saved note {name}.**__")
 
 
-@app.on_message(filters.command("notes") & ~filters.edited & ~filters.private)
+@ufs.on_message(filters.command("notes") & ~filters.edited & ~filters.private)
 @capture_err
 async def get_notes(_, message):
     prefix = message.text.split()[0][0]
@@ -99,7 +99,7 @@ async def get_one_note_userbot(_, message):
         await message.reply_sticker(_note["data"])
 
 
-@app.on_message(
+@ufs.on_message(
     filters.regex(r"^#.+") & filters.text & ~filters.edited & ~filters.private
 )
 @capture_err
@@ -126,7 +126,7 @@ async def get_one_note(_, message):
         await message.reply_sticker(_note["data"])
 
 
-@app.on_message(filters.command("delete") & ~filters.edited & ~filters.private)
+@ufs.on_message(filters.command("delete") & ~filters.edited & ~filters.private)
 @adminsOnly("can_change_info")
 async def del_note(_, message):
     if len(message.command) < 2:

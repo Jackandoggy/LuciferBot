@@ -9,7 +9,7 @@ from pyrogram.errors import (PeerIdInvalid, ShortnameOccupyFailed,
                              StickerPngNopng, UserIsBlocked)
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
-from ufsbotz import BOT_USERNAME, SUDOERS, app, eor
+from ufsbotz import BOT_USERNAME, SUDOERS, ufs, eor
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.utils.files import (get_document_from_file_id,
                                  resize_file_to_sticker_size, upload_document)
@@ -38,7 +38,7 @@ MAX_STICKERS = (
 SUPPORTED_TYPES = ["jpeg", "png", "webp"]
 
 
-@app.on_message(filters.command("sticker_id") & ~filters.edited)
+@ufs.on_message(filters.command("sticker_id") & ~filters.edited)
 @capture_err
 async def sticker_id(_, message: Message):
     reply = message.reply_to_message
@@ -52,7 +52,7 @@ async def sticker_id(_, message: Message):
     await message.reply_text(f"`{reply.sticker.file_id}`")
 
 
-@app.on_message(filters.command("get_sticker") & ~filters.edited)
+@ufs.on_message(filters.command("get_sticker") & ~filters.edited)
 @capture_err
 async def sticker_image(_, message: Message):
     r = message.reply_to_message
@@ -77,7 +77,7 @@ async def sticker_image(_, message: Message):
     os.remove(f)
 
 
-@app.on_message(filters.command("kang") & ~filters.edited)
+@ufs.on_message(filters.command("kang") & ~filters.edited)
 @capture_err
 async def kang(client, message: Message):
     if not message.reply_to_message:
@@ -114,7 +114,7 @@ async def kang(client, message: Message):
             if doc.file_size > 10000000:
                 return await msg.edit("File size too large.")
 
-            temp_file_path = await app.download_media(doc)
+            temp_file_path = await ufs.download_media(doc)
             image_type = imghdr.what(temp_file_path)
             if image_type not in SUPPORTED_TYPES:
                 return await msg.edit(
@@ -213,7 +213,7 @@ async def kang(client, message: Message):
         await message.reply_text("The sticker png dimensions are invalid.")
 
 
-@app.on_message(filters.command("set_packname") & ~filters.edited)
+@ufs.on_message(filters.command("set_packname") & ~filters.edited)
 @capture_err
 async def sticker_id(_, message: Message):
     if len(message.command) < 2:
@@ -224,7 +224,7 @@ async def sticker_id(_, message: Message):
     return await message.reply_text(f"Packname Set to **{' '.join(message.command)}**")
 
 
-@app.on_message(filters.command("get_packname") & ~filters.edited)
+@ufs.on_message(filters.command("get_packname") & ~filters.edited)
 @capture_err
 async def sticker_id(_, message: Message):
     try:
@@ -233,7 +233,7 @@ async def sticker_id(_, message: Message):
         return await message.reply_text("You have not set a packname yet.")
 
 
-@app.on_message(filters.command("del_packname") & ~filters.edited)
+@ufs.on_message(filters.command("del_packname") & ~filters.edited)
 @capture_err
 async def sticker_id(_, message: Message):
     try:
