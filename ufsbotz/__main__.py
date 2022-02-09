@@ -295,7 +295,7 @@ General command are:
     elif home_match:
         await ufs.send_message(
             query.from_user.id,
-            text=home_text_pm,
+            text=home_text_pm.format(username=query.from_user.first_name, botname=BOT_NAME),
             reply_markup=home_keyboard_pm,
         )
         await query.message.delete()
