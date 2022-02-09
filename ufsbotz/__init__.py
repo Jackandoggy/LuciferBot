@@ -14,7 +14,7 @@ from pyromod import listen
 from Python_ARQ import ARQ
 from telegraph import Telegraph
 
-from database.sudoers_db import load_sudoers
+from motor.motor_asyncio import AsyncIOMotorClient as MongoClient
 from sample_config import *
 
 
@@ -33,6 +33,30 @@ MESSAGE_DUMP_CHAT = MESSAGE_DUMP_CHAT
 MOD_LOAD = []
 MOD_NOLOAD = []
 bot_start_time = time.time()
+
+# MongoDB client
+print("[INFO]: INITIALIZING DATABASE")
+mongo_client = MongoClient(MONGO_URL)
+ufs_db = mongo_client.ufsbotz
+
+
+async def load_sudoers():
+    global SUDOERS
+    print("[INFO]: LOADING SUDOERS")
+    sudoersdb = ufs_db.sudoers
+    sudoers = await sudoersdb.find_one({"sudo": "sudo"})
+    sudoers = [] if not sudoers else sudoers["sudoers"]
+    for user_id in SUDOERS:
+        if user_id not in sudoers:
+            sudoers.append(user_id)
+            await sudoersdb.update_one(
+                {"sudo": "sudo"},
+                {"$set": {"sudoers": sudoers}},
+                upsert=True,
+            )
+    SUDOERS = (SUDOERS + sudoers) if sudoers else SUDOERS
+    print("[INFO]: LOADED SUDOERS")
+
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(load_sudoers())
