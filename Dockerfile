@@ -1,18 +1,12 @@
-FROM williambutcherbot/python:latest
+FROM python:3.8-slim-buster
 
-WORKDIR /ufsbotz
-RUN chmod 777 /ufsbotz
+RUN apt update && apt upgrade -y
+RUN apt install git -y
+COPY requirements.txt /requirements.txt
 
-# Installing Requirements
-RUN pip3 install -U pip
-COPY requirements.txt .
-RUN pip3 install --no-cache-dir -U -r requirements.txt
-
-# Copying All Source
-COPY . .
-
-# If u don't want to use /update feature, comment the following and edit
-RUN python3 gitconfig.py
-
-# Starting Bot
-CMD ["python3", "-m", "ufsbotz"]
+RUN cd /
+RUN pip3 install -U pip && pip3 install -U -r requirements.txt
+RUN mkdir /UFSBotz
+WORKDIR /UFSBotz
+COPY start.sh /start.sh
+CMD ["/bin/bash", "/start.sh"]
