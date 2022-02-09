@@ -1,4 +1,4 @@
-FROM LuciferBot/python:latest
+FROM luciferbot/python:latest
 
 WORKDIR /ufsbotz
 RUN chmod 777 /ufsbotz
