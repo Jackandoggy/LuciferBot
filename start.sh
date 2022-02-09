@@ -9,4 +9,4 @@ fi
 cd /UFSBotz
 pip3 install -U -r requirements.txt
 echo "Starting Bot...."
-CMD ["python3", "-m", "ufsbotz"]
+python3 -m ufsbotz
