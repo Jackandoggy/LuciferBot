@@ -87,7 +87,7 @@ home_keyboard_pm = InlineKeyboardMarkup(
             ),
             InlineKeyboardButton(
                 text="Repo 🛠",
-                url="https://github.com/rozari0/NezukoBot",
+                url="https://github.com/jinspalakkattu/LuciferBot",
             ),
         ],
         [
@@ -120,7 +120,7 @@ keyboard = InlineKeyboardMarkup(
             ),
             InlineKeyboardButton(
                 text="Repo 🛠",
-                url="https://github.com/rozari0/NezukoBot",
+                url="https://github.com/jinspalakkattu/LuciferBot",
             ),
         ],
         [
@@ -159,7 +159,7 @@ async def start(_, message):
                 reply_markup=keyb,
             )
     else:
-        await message.reply_photo(photo="https://cdn.awwni.me/2gj9h.jpg",
+        await message.reply_photo(photo=random.choice(PICS),
                                   caption=home_text_pm,
                                   reply_markup=home_keyboard_pm,
                                   )
