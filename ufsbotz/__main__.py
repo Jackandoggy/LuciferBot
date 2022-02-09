@@ -106,7 +106,7 @@ home_keyboard_pm = InlineKeyboardMarkup(
 )
 
 home_text_pm = (
-        "Hᴇʏ Dᴇᴀʀ **_{username}_**! \n        Mʏ Nᴀᴍᴇ Is **_{botname}_**, I'ᴍ Hᴇʀᴇ Tᴏ Hᴇʟᴘ Yᴏᴜ Mᴀɴᴀɢᴇ Yᴏᴜʀ Gʀᴏᴜᴘs! "
+        "Hᴇʏ Dᴇᴀʀ **__{username}__**! \n        Mʏ Nᴀᴍᴇ Is **__{botname}__**, I'ᴍ Hᴇʀᴇ Tᴏ Hᴇʟᴘ Yᴏᴜ Mᴀɴᴀɢᴇ Yᴏᴜʀ Gʀᴏᴜᴘs! "
         "\nHɪᴛ /help Tᴏ Fɪɴᴅ Oᴜᴛ Mᴏʀᴇ Aʙᴏᴜᴛ Hᴏᴡ Tᴏ Usᴇ Mᴇ Tᴏ Mʏ Fᴜʟʟ Pᴏᴛᴇɴᴛɪᴀʟ."
         "\nJᴏɪɴ Mʏ [Nᴇᴡs Cʜᴀɴɴᴇʟ](https://t.me/joinchat/7qlEga5lO0o2MTg0) Tᴏ Gᴇᴛ Iɴғᴏʀᴍᴀᴛɪᴏɴ Oɴ Aʟʟ Tʜᴇ Lᴀᴛᴇsᴛ Uᴘᴅᴀᴛᴇs."
         # f"Hey there! My name is {BOT_NAME}. I can manage your "
