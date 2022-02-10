@@ -41,12 +41,12 @@ print("[INFO]: INITIALIZING DATABASE")
 async def load_sudoers():
     global SUDOERS
     print("[INFO]: LOADING SUDOERS")
-    sudoers = await sudoersdb.find_one({"sudo": "sudo"})
+    sudoers = sudoersdb.find_one({"sudo": "sudo"})
     sudoers = [] if not sudoers else sudoers["sudoers"]
     for user_id in SUDOERS:
         if user_id not in sudoers:
             sudoers.append(user_id)
-            await sudoersdb.update_one(
+            sudoersdb.update_one(
                 {"sudo": "sudo"},
                 {"$set": {"sudoers": sudoers}},
                 upsert=True,
