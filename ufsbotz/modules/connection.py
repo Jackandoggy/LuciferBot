@@ -93,7 +93,7 @@ async def add_connection_fn(client, message):
                     quote=True
                 )
             if not await sett_db.is_settings_exist(str(group_id)):
-                await sett_db.add_settings(str(group_id), True)
+                await sett_db.add_settings(str(group_id), True, 120)
         else:
             await message.reply_text("Add me as an admin in group", quote=True)
     except Exception as e:
