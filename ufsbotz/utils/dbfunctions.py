@@ -10,33 +10,61 @@ from ufsbotz import ufs_db
 # TOO MUCH TIME AND WILL BE BAD FOR ALREADY STORED DATA
 
 
-notesdb = ufs_db.notes
-filtersdb = ufs_db.filters
-warnsdb = ufs_db.warns
-karmadb = ufs_db.karma
-chatsdb = ufs_db.chats
-usersdb = ufs_db.users
-gbansdb = ufs_db.gban
-coupledb = ufs_db.couple
-captchadb = ufs_db.captcha
-solved_captcha_db = ufs_db.solved_captcha
-captcha_cachedb = ufs_db.captcha_cache
-antiservicedb = ufs_db.antiservice
-pmpermitdb = ufs_db.pmpermit
-welcomedb = ufs_db.welcome_text
-blacklist_filtersdb = ufs_db.blacklistFilters
-pipesdb = ufs_db.pipes
-sudoersdb = ufs_db.sudoers
-blacklist_chatdb = ufs_db.blacklistChat
-restart_stagedb = ufs_db.restart_stage
-flood_toggle_db = ufs_db.flood_toggle
-rssdb = ufs_db.rss
-stickerpackname = ufs_db.packname
-nsfw_filtersdb = ufs_db.nsfw_allowed
+# notesdb = ufs_db.notes
+# filtersdb = ufs_db.filters
+# warnsdb = ufs_db.warns
+# karmadb = ufs_db.karma
+# chatsdb = ufs_db.chats
+# usersdb = ufs_db.users
+# gbansdb = ufs_db.gban
+# coupledb = ufs_db.couple
+# captchadb = ufs_db.captcha
+# solved_captcha_db = ufs_db.solved_captcha
+# captcha_cachedb = ufs_db.captcha_cache
+# antiservicedb = ufs_db.antiservice
+# pmpermitdb = ufs_db.pmpermit
+# welcomedb = ufs_db.welcome_text
+# blacklist_filtersdb = ufs_db.blacklistFilters
+# pipesdb = ufs_db.pipes
+# sudoersdb = ufs_db.sudoers
+# blacklist_chatdb = ufs_db.blacklistChat
+# restart_stagedb = ufs_db.restart_stage
+# flood_toggle_db = ufs_db.flood_toggle
+# rssdb = ufs_db.rss
+# stickerpackname = ufs_db.packname
+# nsfw_filtersdb = ufs_db.nsfw_allowed
+#
+# # new db added
+# connectiondb = ufs_db.connection
+# settingsdb = ufs_db.settings
+
+notesdb = ufs_db['notes']
+filtersdb = ufs_db['filters']
+warnsdb = ufs_db['warns']
+karmadb = ufs_db['karma']
+chatsdb = ufs_db['chats']
+usersdb = ufs_db['users']
+gbansdb = ufs_db['gban']
+coupledb = ufs_db['couple']
+captchadb = ufs_db['captcha']
+solved_captcha_db = ufs_db['solved_captcha']
+captcha_cachedb = ufs_db['captcha_cache']
+antiservicedb = ufs_db['antiservice']
+pmpermitdb = ufs_db['pmpermit']
+welcomedb = ufs_db['welcome_text']
+blacklist_filtersdb = ufs_db['blacklistFilters']
+pipesdb = ufs_db['pipes']
+sudoersdb = ufs_db['sudoers']
+blacklist_chatdb = ufs_db['blacklistChat']
+restart_stagedb = ufs_db['restart_stage']
+flood_toggle_db = ufs_db['flood_toggle']
+rssdb = ufs_db['rss']
+stickerpackname = ufs_db['packname']
+nsfw_filtersdb = ufs_db['nsfw_allowed']
 
 # new db added
-connectiondb = ufs_db.connection
-settingsdb = ufs_db.settings
+connectiondb = ufs_db['connection']
+settingsdb = ufs_db['settings']
 
 
 def obj_to_str(obj):
