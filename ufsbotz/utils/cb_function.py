@@ -1,5 +1,4 @@
-from pyrogram import Client
-from pyrogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from ufsbotz import ufs
 from ufsbotz.utils.dbfunctions import (make_active, make_inactive,
@@ -7,7 +6,7 @@ from ufsbotz.utils.dbfunctions import (make_active, make_inactive,
 
 
 @ufs.on_callback_query()
-async def cb_handler(client: Client, query: CallbackQuery):
+async def cb_handler(client, query):
     if "groupcb" in query.data:
         await query.answer()
 
