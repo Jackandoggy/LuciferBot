@@ -108,7 +108,7 @@ async def welcome(_, message: Message):
                 continue  # ignore sudo users
 
             if await is_gbanned_user(member.id):
-                await message.chat.kick_member(member.id)
+                await message.chat.ban_member(member.id)
                 await message.reply_text(
                     f"{member.mention} was globally banned, and got removed,"
                     + " if you think this is a false gban, you can appeal"

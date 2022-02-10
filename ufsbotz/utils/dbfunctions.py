@@ -34,6 +34,10 @@ rssdb = ufs_db.rss
 stickerpackname = ufs_db.packname
 nsfw_filtersdb = ufs_db.nsfw_allowed
 
+# new db added
+connectiondb = ufs_db.connection
+settingsdb = ufs_db.settings
+
 
 def obj_to_str(obj):
     if not obj:
@@ -760,3 +764,185 @@ async def get_nsfw_status(chat_id: int) -> bool:
     if not text:
         return False
     return text["allowed"]
+
+
+async def add_connection(group_id: str, user_id: str):
+    # return await welcomedb.update_one(
+    #     {"chat_id": str(chat_id)}, {"$set": {"text": text}}, upsert=True
+    # )
+
+    query = connectiondb.find_one(
+        {"_id": user_id},
+        {"_id": 0, "active_group": 0}
+    )
+    if query is not None:
+        group_ids = [x["group_id"] for x in query["group_details"]]
+        if group_id in group_ids:
+            return False
+
+    group_details = {
+        "group_id": group_id
+    }
+
+    data = {
+        '_id': user_id,
+        'group_details': [group_details],
+        'active_group': group_id,
+    }
+
+    if connectiondb.count_documents({"_id": user_id}) == 0:
+        try:
+            connectiondb.insert_one(data)
+            return True
+        except:
+            print("[ERROR] Some Error Occured While Adding Connection!")
+            # logger.exception('Some error occured!', exc_info=True)
+
+    else:
+        try:
+            connectiondb.update_one(
+                {'_id': user_id},
+                {
+                    "$push": {"group_details": group_details},
+                    "$set": {"active_group": group_id}
+                }
+            )
+            return True
+        except:
+            print("[ERROR] Some Error Occured While Adding Connection!")
+            # logger.exception('Some error occured!', exc_info=True)
+
+
+async def active_connection(user_id):
+    query = connectiondb.find_one(
+        {"_id": user_id},
+        {"_id": 0, "group_details": 0}
+    )
+    if not query:
+        return None
+
+    group_id = query['active_group']
+    if group_id is not None:
+        return int(group_id)
+    else:
+        return None
+
+
+async def all_connections(user_id):
+    query = connectiondb.find_one(
+        {"_id": user_id},
+        {"_id": 0, "active_group": 0}
+    )
+    if query is not None:
+        return [x["group_id"] for x in query["group_details"]]
+    else:
+        return None
+
+
+async def if_active(user_id, group_id):
+    query = connectiondb.find_one(
+        {"_id": user_id},
+        {"_id": 0, "group_details": 0}
+    )
+    return query is not None and query['active_group'] == group_id
+
+
+async def make_active(user_id, group_id):
+    update = connectiondb.update_one(
+        {'_id': user_id},
+        {"$set": {"active_group": group_id}}
+    )
+    return update.modified_count != 0
+
+
+async def make_inactive(user_id):
+    update = connectiondb.update_one(
+        {'_id': user_id},
+        {"$set": {"active_group": None}}
+    )
+    return update.modified_count != 0
+
+
+async def delete_connection(user_id, group_id):
+    try:
+        update = connectiondb.update_one(
+            {"_id": user_id},
+            {"$pull": {"group_details": {"group_id": group_id}}}
+        )
+        if update.modified_count == 0:
+            return False
+        query = connectiondb.find_one(
+            {"_id": user_id},
+            {"_id": 0}
+        )
+        if len(query["group_details"]) >= 1:
+            if query['active_group'] == group_id:
+                prvs_group_id = query["group_details"][len(query["group_details"]) - 1]["group_id"]
+
+                connectiondb.update_one(
+                    {'_id': user_id},
+                    {"$set": {"active_group": prvs_group_id}}
+                )
+        else:
+            connectiondb.update_one(
+                {'_id': user_id},
+                {"$set": {"active_group": None}}
+            )
+        return True
+    except Exception as e:
+        print(f"[ERROR] Some error occurred! {e}")
+        # logger.exception(f'Some error occurred! {e}', exc_info=True)
+        return False
+
+
+async def add_settings(group_id: str, lock: bool):
+    query = settingsdb.find_one({'chat_id': str(group_id)})
+
+    if query is not None:
+        return False
+
+    data = {
+        'chat_id': group_id,
+        'button': lock, 'botpm': lock,
+        'file_secure': lock, 'imdb': lock,
+        'spell_check': lock, 'welcome': lock,
+        'auto_delete': lock, 'delete_time': lock,
+    }
+
+    if settingsdb.count_documents({"chat_id": group_id}) == 0:
+        try:
+            settingsdb.insert_one(data)
+            return True
+        except:
+            print("[ERROR] Some Error Occurred While Adding Connection!")
+            # logger.exception('Some error occurred!', exc_info=True)
+
+
+async def is_settings_exist(chat_id):
+    locks = await settingsdb.find_one({'chat_id': str(chat_id)})
+    return bool(locks)
+
+
+async def get_settings(chat_id):
+    query = await settingsdb.find_one({'chat_id': str(chat_id)})
+    if query is not None:
+        return query
+    else:
+        return None
+
+
+async def update_settings(chat_id, sett_type, lock, time):
+    if sett_type == "button":
+        await settingsdb.update_one({'chat_id': str(chat_id)}, {'$set': {'button': lock}})
+    elif sett_type == "botpm":
+        await settingsdb.update_one({'chat_id': str(chat_id)}, {'$set': {'botpm': lock}})
+    elif sett_type == "file_secure":
+        await settingsdb.update_one({'chat_id': str(chat_id)}, {'$set': {'file_secure': lock}})
+    elif sett_type == "imdb":
+        await settingsdb.update_one({'chat_id': str(chat_id)}, {'$set': {'imdb': lock}})
+    elif sett_type == "spell_check":
+        await settingsdb.update_one({'chat_id': str(chat_id)}, {'$set': {'spell_check': lock}})
+    elif sett_type == "welcome":
+        await settingsdb.update_one({'chat_id': str(chat_id)}, {'$set': {'welcome': lock}})
+    elif sett_type == "delete":
+        await settingsdb.update_one({'chat_id': str(chat_id)}, {'$set': {'auto_delete': lock, 'delete_time': time}})
