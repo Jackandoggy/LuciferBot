@@ -9,8 +9,8 @@ from pyrogram.types import (CallbackQuery, ChatPermissions,
 from ufsbotz import SUDOERS, ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.decorators.permissions import adminsOnly
+from ufsbotz.database.flood_db import is_flood_on, flood_on, flood_off
 from ufsbotz.modules.admin import list_admins, member_permissions
-from ufsbotz.utils.dbfunctions import flood_off, flood_on, is_flood_on
 from ufsbotz.utils.filter_groups import flood_group
 
 __MODULE__ = "Flood"

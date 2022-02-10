@@ -9,12 +9,12 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from ufsbotz import (BOT_NAME, BOT_USERNAME, LOG_GROUP_ID,
                      aiohttpsession, ufs)
+from ufsbotz.database.restart_db import clean_restart_stage
 from ufsbotz.modules import ALL_MODULES
 from ufsbotz.modules.sudoers import bot_sys_stats
 from ufsbotz.utils import paginate_modules
 from ufsbotz.utils.constants import MARKDOWN
 from sample_config import *
-from ufsbotz.utils.dbfunctions import clean_restart_stage
 
 loop = asyncio.get_event_loop()
 

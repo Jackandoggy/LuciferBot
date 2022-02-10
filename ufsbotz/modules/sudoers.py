@@ -10,9 +10,9 @@ from pyrogram.errors import FloodWait
 from ufsbotz import (BOT_ID, GBAN_LOG_GROUP_ID, SUDOERS, BOT_NAME, ufs,
                      bot_start_time)
 from ufsbotz.core.decorators.errors import capture_err
+from ufsbotz.database.chat_db import get_served_chats
+from ufsbotz.database.gbans_db import add_gban_user, is_gbanned_user, remove_gban_user
 from ufsbotz.utils import formatter
-from ufsbotz.utils.dbfunctions import (add_gban_user, get_served_chats,
-                                       is_gbanned_user, remove_gban_user)
 from ufsbotz.utils.functions import extract_user, extract_user_and_reason, restart
 
 __MODULE__ = "Sudoers"

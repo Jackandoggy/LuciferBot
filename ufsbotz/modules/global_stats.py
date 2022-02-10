@@ -5,13 +5,16 @@ from pyrogram.errors import FloodWait
 
 from ufsbotz import BOT_ID, BOT_NAME, SUDOERS, ufs
 from ufsbotz.core.decorators.errors import capture_err
+from ufsbotz.database.blacklist_filters_db import get_blacklist_filters_count
+from ufsbotz.database.chat_db import get_served_chats, remove_served_chat
+from ufsbotz.database.filters_db import get_filters_count
+from ufsbotz.database.gbans_db import get_gbans_count
+from ufsbotz.database.karma_db import get_karmas_count
+from ufsbotz.database.note_db import get_notes_count
+from ufsbotz.database.rss_db import get_rss_feeds_count
+from ufsbotz.database.users_db import get_served_users
+from ufsbotz.database.warns_db import get_warns_count
 from ufsbotz.modules import ALL_MODULES
-from ufsbotz.utils.dbfunctions import (get_blacklist_filters_count,
-                                       get_filters_count, get_gbans_count,
-                                       get_karmas_count, get_notes_count,
-                                       get_rss_feeds_count, get_served_chats,
-                                       get_served_users, get_warns_count,
-                                       remove_served_chat)
 from ufsbotz.utils.http import get
 from ufsbotz.utils.inlinefuncs import keywords_list
 
@@ -78,8 +81,8 @@ async def global_stats(_, message):
     karmas_chats_count = _karmas["chats_count"]
 
     # Contributors/Developers count and commits on github
-    url = "https://api.github.com/repos/rozari0/nezukobot/contributors"
-    rurl = "https://github.com/rozari0/nezukobot"
+    url = "https://api.github.com/repos/jinspalakkattu/LuciferBot/contributors"
+    rurl = "https://github.com/jinspalakkattu/LuciferBot"
     developers = await get(url)
     commits = sum(developer["contributions"] for developer in developers)
     developers = len(developers)

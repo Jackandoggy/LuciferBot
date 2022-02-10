@@ -1,7 +1,8 @@
 from pyrogram import filters
+
+from ufsbotz.database.filters_db import get_nsfw_status, set_nsfw_status
 from ufsbotz.utils.http import get
 from ufsbotz import ufs
-from ufsbotz.utils.dbfunctions import get_nsfw_status, set_nsfw_status
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.decorators.permissions import adminsOnly
 

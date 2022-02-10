@@ -5,8 +5,6 @@ from pyrogram import filters
 
 from ufsbotz import ufs
 from ufsbotz.core.decorators.permissions import adminsOnly
-from ufsbotz.utils.dbfunctions import (antiservice_off, antiservice_on,
-                                   is_antiservice_on)
 
 __MODULE__ = "AntiService"
 __HELP__ = """
@@ -14,6 +12,8 @@ Plugin to delete service messages in a chat!
 
 /antiservice [enable|disable]
 """
+
+from ufsbotz.database.antiservice_db import antiservice_on, antiservice_off, is_antiservice_on
 
 
 @ufs.on_message(filters.command("antiservice") & ~filters.private)

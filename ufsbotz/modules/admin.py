@@ -6,8 +6,9 @@ from pyrogram.types import CallbackQuery, ChatPermissions, Message
 from ufsbotz import BOT_ID, SUDOERS, ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.keyboard import ikb
-from ufsbotz.utils.dbfunctions import (add_warn, get_warn, int_to_alpha,
-                                       remove_warns, save_filter)
+from ufsbotz.database.filters_db import save_filter
+from ufsbotz.database.warns_db import get_warn, remove_warns, add_warn
+from ufsbotz.utils.dbfunctions import int_to_alpha
 from ufsbotz.utils.functions import (extract_user, extract_user_and_reason,
                                      time_converter)
 
@@ -617,7 +618,7 @@ async def report_user(_, message):
 
     user_mention = message.reply_to_message.from_user.mention
     text = f"Reported {user_mention} to admins!"
-    admin_data = await ufa.get_chat_members(
+    admin_data = await ufs.get_chat_members(
         chat_id=message.chat.id, filter="administrators"
     )  # will it giv floods ?
     for admin in admin_data:

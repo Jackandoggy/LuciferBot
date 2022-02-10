@@ -2,10 +2,11 @@ from pyrogram import filters
 
 from ufsbotz import ufs, arq
 from ufsbotz.core.decorators.errors import capture_err
-from ufsbotz.utils.dbfunctions import get_nsfw_status
 
 __MODULE__ = "Reddit"
 __HELP__ = "/reddit [query] - results something from reddit"
+
+from ufsbotz.database.filters_db import get_nsfw_status
 
 
 @ufs.on_message(filters.command("reddit") & ~filters.edited)

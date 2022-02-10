@@ -1,7 +1,9 @@
 git+https://github.com/jinspalakkattu/pyrogram@master
 git+https://github.com/hellysmile/fake-useragent/
 cinemagoer
-TgCrypto
+TgCrypto==1.2.2
+marshmallow==3.12.2
+python-decouple
 aiohttp
 aiofiles
 telegraph

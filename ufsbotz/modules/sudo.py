@@ -3,7 +3,7 @@ from pyrogram.types import Message
 
 from ufsbotz import BOT_ID, SUDOERS, eor, ufs
 from ufsbotz.core.decorators.errors import capture_err
-from ufsbotz.utils.dbfunctions import add_sudo, get_sudoers, remove_sudo
+from ufsbotz.database.sudoers_db import get_sudoers, add_sudo, remove_sudo
 from ufsbotz.utils.functions import restart
 
 __MODULE__ = "Sudo"

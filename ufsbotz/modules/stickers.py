@@ -11,9 +11,9 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from ufsbotz import BOT_USERNAME, SUDOERS, ufs, eor
 from ufsbotz.core.decorators.errors import capture_err
+from ufsbotz.database.stickerpack_db import get_packname, set_packname, del_packname
 from ufsbotz.utils.files import (get_document_from_file_id,
                                  resize_file_to_sticker_size, upload_document)
-from ufsbotz.utils.dbfunctions import (get_packname, set_packname, del_packname)
 from ufsbotz.utils.stickerset import (add_sticker_to_set, create_sticker,
                                       create_sticker_set, get_sticker_set_by_name)
 

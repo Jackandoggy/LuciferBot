@@ -1,7 +1,7 @@
 from ufsbotz import ufs
 from pyrogram import filters
 from ufsbotz.core.decorators.errors import capture_err
-from ufsbotz.utils.http import get,resp_get
+from ufsbotz.utils.http import get, resp_get
 
 __MODULE__ = "Animals"
 __HELP__ = """/catfacts - To Get Facts About Cat.
@@ -25,7 +25,7 @@ async def catfacts(client, message):
 @capture_err
 async def animalfacts(client, message):
     somerandomvariable = await get("https://axoltlapi.herokuapp.com/")
-    return await message.reply_photo(somerandomvariable["url"],caption=somerandomvariable["facts"])
+    return await message.reply_photo(somerandomvariable["url"], caption=somerandomvariable["facts"])
 
 
 @ufs.on_message(filters.command("dogfacts"))

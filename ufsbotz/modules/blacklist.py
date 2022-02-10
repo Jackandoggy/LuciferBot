@@ -7,10 +7,8 @@ from pyrogram.types import ChatPermissions
 from ufsbotz import SUDOERS, ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.decorators.permissions import adminsOnly
+from ufsbotz.database.blacklist_filters_db import save_blacklist_filter, get_blacklisted_words, delete_blacklist_filter
 from ufsbotz.modules.admin import list_admins
-from ufsbotz.utils.dbfunctions import (delete_blacklist_filter,
-                                       get_blacklisted_words,
-                                       save_blacklist_filter)
 from ufsbotz.utils.filter_groups import blacklist_filters_group
 
 __MODULE__ = "Blacklist"

@@ -13,11 +13,10 @@ from ufsbotz import SUDOERS, WELCOME_DELAY_KICK_SEC, ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.decorators.permissions import adminsOnly
 from ufsbotz.core.keyboard import ikb
-from ufsbotz.utils.dbfunctions import (captcha_off, captcha_on, del_welcome,
-                                       get_captcha_cache, get_welcome,
-                                       has_solved_captcha_once, is_captcha_on,
-                                       is_gbanned_user, save_captcha_solved,
-                                       set_welcome, update_captcha_cache)
+from ufsbotz.database.captcha_db import get_captcha_cache, is_captcha_on, has_solved_captcha_once, update_captcha_cache, \
+    save_captcha_solved, captcha_on, captcha_off
+from ufsbotz.database.gbans_db import is_gbanned_user
+from ufsbotz.database.welcome_db import get_welcome, del_welcome, set_welcome
 from ufsbotz.utils.filter_groups import welcome_captcha_group
 from ufsbotz.utils.functions import extract_text_and_keyb, generate_captcha
 

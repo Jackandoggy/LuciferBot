@@ -6,8 +6,7 @@ from pyrogram.types import Message
 
 from ufsbotz import RSS_DELAY, ufs
 from ufsbotz.core.decorators.errors import capture_err
-from ufsbotz.utils.dbfunctions import (add_rss_feed, get_rss_feeds, is_rss_active,
-                                       remove_rss_feed, update_rss_feed)
+from ufsbotz.database.rss_db import get_rss_feeds, update_rss_feed, is_rss_active, add_rss_feed, remove_rss_feed
 from ufsbotz.utils.functions import get_http_status_code, get_urls_from_text
 from ufsbotz.utils.rss import Feed
 

@@ -3,8 +3,6 @@ from pyrogram.types import Message
 
 from ufsbotz import SUDOERS, ufs
 from ufsbotz.core.decorators.errors import capture_err
-from ufsbotz.utils.dbfunctions import (blacklist_chat, blacklisted_chats,
-                                   whitelist_chat)
 
 __MODULE__ = "Blacklist Chat"
 __HELP__ = """
@@ -17,6 +15,8 @@ in which you don't want it to be in.
 /whitelist_chat [CHAT_ID] - Whitelist a chat.
 /blacklisted - Show blacklisted chats.
 """
+
+from ufsbotz.database.blacklist_filters_db import blacklisted_chats, blacklist_chat, whitelist_chat
 
 
 @ufs.on_message(filters.command("blacklist_chat") & filters.user(SUDOERS))

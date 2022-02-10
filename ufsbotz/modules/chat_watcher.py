@@ -1,6 +1,7 @@
 from ufsbotz import ufs
-from ufsbotz.utils.dbfunctions import (add_served_chat, add_served_user,
-                                       blacklisted_chats)
+from ufsbotz.database.blacklist_filters_db import blacklisted_chats
+from ufsbotz.database.chat_db import add_served_chat
+from ufsbotz.database.users_db import add_served_user
 from ufsbotz.utils.filter_groups import chat_watcher_group
 
 

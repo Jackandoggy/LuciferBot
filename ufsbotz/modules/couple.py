@@ -5,13 +5,15 @@ from pyrogram import filters
 
 from ufsbotz import ufs
 from ufsbotz.core.decorators.errors import capture_err
-from ufsbotz.utils.dbfunctions import get_couple, save_couple
 
 __MODULE__ = "Shippering"
 __HELP__ = "/detect_gay - To Choose Couple Of The Day"
 
 
 # Date and time
+from ufsbotz.database.couple_db import get_couple, save_couple
+
+
 def dt():
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M")

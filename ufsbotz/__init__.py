@@ -1,12 +1,9 @@
 
 import asyncio
-# import logging
-# import logging.config
+import logging.config
 import time
-from inspect import getfullargspec
-from os import path
 
-import pymongo
+from inspect import getfullargspec
 from aiohttp import ClientSession
 from pyrogram import Client, __version__
 from pyrogram.raw.all import layer
@@ -15,15 +12,16 @@ from pyromod import listen
 from Python_ARQ import ARQ
 from telegraph import Telegraph
 
-from motor.motor_asyncio import AsyncIOMotorClient as MongoClient
+from ufsbotz.database import sudoersdb
+
 from sample_config import *
 
 
-# # Get logging configurations
-# logging.config.fileConfig('logging.conf')
-# logging.getLogger().setLevel(logging.INFO)
-# logging.getLogger("pyrogram").setLevel(logging.ERROR)
-# logging.getLogger("imdbpy").setLevel(logging.ERROR)
+# Get logging configurations
+logging.config.fileConfig('logging.conf')
+logging.getLogger().setLevel(logging.INFO)
+logging.getLogger("pyrogram").setLevel(logging.ERROR)
+logging.getLogger("imdbpy").setLevel(logging.ERROR)
 
 GBAN_LOG_GROUP_ID = GBAN_LOG_GROUP_ID
 USERBOT_ID = USERBOT_ID
@@ -37,17 +35,11 @@ bot_start_time = time.time()
 
 # MongoDB client
 print("[INFO]: INITIALIZING DATABASE")
-mongo_client = MongoClient(MONGO_URL)
-ufs_db = mongo_client.ufsbotz
-# mongo_client = pymongo.MongoClient(MONGO_URL)
-# ufs_db = mongo_client['ufsbotz']
 
 
 async def load_sudoers():
     global SUDOERS
     print("[INFO]: LOADING SUDOERS")
-    sudoersdb = ufs_db.sudoers
-    # sudoersdb = ufs_db['sudoers']
     sudoers = await sudoersdb.find_one({"sudo": "sudo"})
     sudoers = [] if not sudoers else sudoers["sudoers"]
     for user_id in SUDOERS:
@@ -85,8 +77,8 @@ BOT_USERNAME = x.username
 BOT_MENTION = x.mention
 BOT_DC_ID = x.dc_id
 
-# logging.info(f"{BOT_NAME} with for Pyrogram v{__version__} (Layer {layer}) started on {BOT_USERNAME}.")
-# logging.info(f"{BOT_NAME} Has Started Running...🏃💨💨")
+logging.info(f"{BOT_NAME} with for Pyrogram v{__version__} (Layer {layer}) started on {BOT_USERNAME}.")
+logging.info(f"{BOT_NAME} Has Started Running...🏃💨💨")
 
 telegraph = Telegraph()
 telegraph.create_account(short_name=BOT_USERNAME)

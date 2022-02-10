@@ -5,13 +5,15 @@ from pyrogram.types import Message
 
 from ufsbotz import SUDOERS, ufs
 from ufsbotz.core.sections import section
-from ufsbotz.utils.dbfunctions import is_gbanned_user, user_global_karma
 
 __MODULE__ = "Info"
 __HELP__ = """
 /info [USERNAME|ID] - Get info about a user.
 /chat_info [USERNAME|ID] - Get info about a chat.
 """
+
+from ufsbotz.database.gbans_db import is_gbanned_user
+from ufsbotz.database.karma_db import user_global_karma
 
 
 async def get_user_info(user, already=False):

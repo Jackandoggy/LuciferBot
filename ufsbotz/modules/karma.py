@@ -6,9 +6,8 @@ from ufsbotz import ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.decorators.permissions import adminsOnly
 from ufsbotz.core.sections import section
-from ufsbotz.utils.dbfunctions import (alpha_to_int, get_karma, get_karmas,
-                                       int_to_alpha, is_karma_on, karma_off,
-                                       karma_on, update_karma)
+from ufsbotz.database.karma_db import is_karma_on, get_karma, update_karma, get_karmas, karma_on, karma_off
+from ufsbotz.utils.dbfunctions import int_to_alpha, alpha_to_int
 from ufsbotz.utils.filter_groups import karma_negative_group, karma_positive_group
 from ufsbotz.utils.functions import get_user_id_and_usernames
 
