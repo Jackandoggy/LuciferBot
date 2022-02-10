@@ -32,7 +32,7 @@ async def _get_filters(chat_id: int) -> Dict[str, int]:
 
 async def get_filters_names(chat_id: int) -> List[str]:
     _filters = []
-    for _filter in _get_filters(chat_id):
+    for _filter in await _get_filters(chat_id):
         _filters.append(_filter)
     return _filters
 
