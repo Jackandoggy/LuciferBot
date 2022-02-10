@@ -693,7 +693,8 @@ async def start_restart_stage(chat_id: int, message_id: int):
 
 
 async def clean_restart_stage() -> dict:
-    data = await restart_stagedb.find_one({"something": "something"})
+    # data = await restart_stagedb.find_one({"something": "something"})
+    data = restart_stagedb.find_one({"something": "something"})
     if not data:
         return {}
     await restart_stagedb.delete_one({"something": "something"})
