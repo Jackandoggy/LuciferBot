@@ -14,7 +14,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 from pyrogram.types import Message
 
 from ufsbotz import aiohttpsession as aiosession
-from ufsbotz.utils.dbfunctions import start_restart_stage
+from ufsbotz.database.restart_db import start_restart_stage
 from ufsbotz.utils.http import get, post
 
 
