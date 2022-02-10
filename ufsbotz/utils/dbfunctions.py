@@ -10,61 +10,61 @@ from ufsbotz import ufs_db
 # TOO MUCH TIME AND WILL BE BAD FOR ALREADY STORED DATA
 
 
-# notesdb = ufs_db.notes
-# filtersdb = ufs_db.filters
-# warnsdb = ufs_db.warns
-# karmadb = ufs_db.karma
-# chatsdb = ufs_db.chats
-# usersdb = ufs_db.users
-# gbansdb = ufs_db.gban
-# coupledb = ufs_db.couple
-# captchadb = ufs_db.captcha
-# solved_captcha_db = ufs_db.solved_captcha
-# captcha_cachedb = ufs_db.captcha_cache
-# antiservicedb = ufs_db.antiservice
-# pmpermitdb = ufs_db.pmpermit
-# welcomedb = ufs_db.welcome_text
-# blacklist_filtersdb = ufs_db.blacklistFilters
-# pipesdb = ufs_db.pipes
-# sudoersdb = ufs_db.sudoers
-# blacklist_chatdb = ufs_db.blacklistChat
-# restart_stagedb = ufs_db.restart_stage
-# flood_toggle_db = ufs_db.flood_toggle
-# rssdb = ufs_db.rss
-# stickerpackname = ufs_db.packname
-# nsfw_filtersdb = ufs_db.nsfw_allowed
-#
-# # new db added
-# connectiondb = ufs_db.connection
-# settingsdb = ufs_db.settings
-
-notesdb = ufs_db['notes']
-filtersdb = ufs_db['filters']
-warnsdb = ufs_db['warns']
-karmadb = ufs_db['karma']
-chatsdb = ufs_db['chats']
-usersdb = ufs_db['users']
-gbansdb = ufs_db['gban']
-coupledb = ufs_db['couple']
-captchadb = ufs_db['captcha']
-solved_captcha_db = ufs_db['solved_captcha']
-captcha_cachedb = ufs_db['captcha_cache']
-antiservicedb = ufs_db['antiservice']
-pmpermitdb = ufs_db['pmpermit']
-welcomedb = ufs_db['welcome_text']
-blacklist_filtersdb = ufs_db['blacklistFilters']
-pipesdb = ufs_db['pipes']
-sudoersdb = ufs_db['sudoers']
-blacklist_chatdb = ufs_db['blacklistChat']
-restart_stagedb = ufs_db['restart_stage']
-flood_toggle_db = ufs_db['flood_toggle']
-rssdb = ufs_db['rss']
-stickerpackname = ufs_db['packname']
-nsfw_filtersdb = ufs_db['nsfw_allowed']
+notesdb = ufs_db.notes
+filtersdb = ufs_db.filters
+warnsdb = ufs_db.warns
+karmadb = ufs_db.karma
+chatsdb = ufs_db.chats
+usersdb = ufs_db.users
+gbansdb = ufs_db.gban
+coupledb = ufs_db.couple
+captchadb = ufs_db.captcha
+solved_captcha_db = ufs_db.solved_captcha
+captcha_cachedb = ufs_db.captcha_cache
+antiservicedb = ufs_db.antiservice
+pmpermitdb = ufs_db.pmpermit
+welcomedb = ufs_db.welcome_text
+blacklist_filtersdb = ufs_db.blacklistFilters
+pipesdb = ufs_db.pipes
+sudoersdb = ufs_db.sudoers
+blacklist_chatdb = ufs_db.blacklistChat
+restart_stagedb = ufs_db.restart_stage
+flood_toggle_db = ufs_db.flood_toggle
+rssdb = ufs_db.rss
+stickerpackname = ufs_db.packname
+nsfw_filtersdb = ufs_db.nsfw_allowed
 
 # new db added
-connectiondb = ufs_db['connection']
-settingsdb = ufs_db['settings']
+connectiondb = ufs_db.connection
+settingsdb = ufs_db.settings
+
+# notesdb = ufs_db['notes']
+# filtersdb = ufs_db['filters']
+# warnsdb = ufs_db['warns']
+# karmadb = ufs_db['karma']
+# chatsdb = ufs_db['chats']
+# usersdb = ufs_db['users']
+# gbansdb = ufs_db['gban']
+# coupledb = ufs_db['couple']
+# captchadb = ufs_db['captcha']
+# solved_captcha_db = ufs_db['solved_captcha']
+# captcha_cachedb = ufs_db['captcha_cache']
+# antiservicedb = ufs_db['antiservice']
+# pmpermitdb = ufs_db['pmpermit']
+# welcomedb = ufs_db['welcome_text']
+# blacklist_filtersdb = ufs_db['blacklistFilters']
+# pipesdb = ufs_db['pipes']
+# sudoersdb = ufs_db['sudoers']
+# blacklist_chatdb = ufs_db['blacklistChat']
+# restart_stagedb = ufs_db['restart_stage']
+# flood_toggle_db = ufs_db['flood_toggle']
+# rssdb = ufs_db['rss']
+# stickerpackname = ufs_db['packname']
+# nsfw_filtersdb = ufs_db['nsfw_allowed']
+#
+# # new db added
+# connectiondb = ufs_db['connection']
+# settingsdb = ufs_db['settings']
 
 
 def obj_to_str(obj):
@@ -693,8 +693,8 @@ async def start_restart_stage(chat_id: int, message_id: int):
 
 
 async def clean_restart_stage() -> dict:
-    # data = await restart_stagedb.find_one({"something": "something"})
-    data = restart_stagedb.find_one({"something": "something"})
+    data = await restart_stagedb.find_one({"something": "something"})
+    # data = restart_stagedb.find_one({"something": "something"})
     if not data:
         return {}
     await restart_stagedb.delete_one({"something": "something"})
@@ -800,7 +800,7 @@ async def add_connection(group_id: str, user_id: str):
     #     {"chat_id": str(chat_id)}, {"$set": {"text": text}}, upsert=True
     # )
 
-    query = connectiondb.find_one(
+    query = await connectiondb.find_one(
         {"_id": user_id},
         {"_id": 0, "active_group": 0}
     )
@@ -819,9 +819,9 @@ async def add_connection(group_id: str, user_id: str):
         'active_group': group_id,
     }
 
-    if connectiondb.count_documents({"_id": user_id}) == 0:
+    if await connectiondb.count_documents({"_id": user_id}) == 0:
         try:
-            connectiondb.insert_one(data)
+            await connectiondb.insert_one(data)
             return True
         except:
             print("[ERROR] Some Error Occured While Adding Connection!")
@@ -829,7 +829,7 @@ async def add_connection(group_id: str, user_id: str):
 
     else:
         try:
-            connectiondb.update_one(
+            await connectiondb.update_one(
                 {'_id': user_id},
                 {
                     "$push": {"group_details": group_details},
@@ -843,7 +843,7 @@ async def add_connection(group_id: str, user_id: str):
 
 
 async def active_connection(user_id):
-    query = connectiondb.find_one(
+    query = await connectiondb.find_one(
         {"_id": user_id},
         {"_id": 0, "group_details": 0}
     )
@@ -858,7 +858,7 @@ async def active_connection(user_id):
 
 
 async def all_connections(user_id):
-    query = connectiondb.find_one(
+    query = await connectiondb.find_one(
         {"_id": user_id},
         {"_id": 0, "active_group": 0}
     )
@@ -869,7 +869,7 @@ async def all_connections(user_id):
 
 
 async def if_active(user_id, group_id):
-    query = connectiondb.find_one(
+    query = await connectiondb.find_one(
         {"_id": user_id},
         {"_id": 0, "group_details": 0}
     )
@@ -877,7 +877,7 @@ async def if_active(user_id, group_id):
 
 
 async def make_active(user_id, group_id):
-    update = connectiondb.update_one(
+    update = await connectiondb.update_one(
         {'_id': user_id},
         {"$set": {"active_group": group_id}}
     )
@@ -885,7 +885,7 @@ async def make_active(user_id, group_id):
 
 
 async def make_inactive(user_id):
-    update = connectiondb.update_one(
+    update = await connectiondb.update_one(
         {'_id': user_id},
         {"$set": {"active_group": None}}
     )
@@ -894,13 +894,13 @@ async def make_inactive(user_id):
 
 async def delete_connection(user_id, group_id):
     try:
-        update = connectiondb.update_one(
+        update = await connectiondb.update_one(
             {"_id": user_id},
             {"$pull": {"group_details": {"group_id": group_id}}}
         )
         if update.modified_count == 0:
             return False
-        query = connectiondb.find_one(
+        query = await connectiondb.find_one(
             {"_id": user_id},
             {"_id": 0}
         )
@@ -908,12 +908,12 @@ async def delete_connection(user_id, group_id):
             if query['active_group'] == group_id:
                 prvs_group_id = query["group_details"][len(query["group_details"]) - 1]["group_id"]
 
-                connectiondb.update_one(
+                await connectiondb.update_one(
                     {'_id': user_id},
                     {"$set": {"active_group": prvs_group_id}}
                 )
         else:
-            connectiondb.update_one(
+            await connectiondb.update_one(
                 {'_id': user_id},
                 {"$set": {"active_group": None}}
             )
@@ -925,7 +925,7 @@ async def delete_connection(user_id, group_id):
 
 
 async def add_settings(group_id: str, lock: bool):
-    query = settingsdb.find_one({'chat_id': str(group_id)})
+    query = await settingsdb.find_one({'chat_id': str(group_id)})
 
     if query is not None:
         return False
@@ -938,9 +938,9 @@ async def add_settings(group_id: str, lock: bool):
         'auto_delete': lock, 'delete_time': lock,
     }
 
-    if settingsdb.count_documents({"chat_id": group_id}) == 0:
+    if await settingsdb.count_documents({"chat_id": group_id}) == 0:
         try:
-            settingsdb.insert_one(data)
+            await settingsdb.insert_one(data)
             return True
         except:
             print("[ERROR] Some Error Occurred While Adding Connection!")

@@ -24,7 +24,7 @@ __MODULE__ = "Connections"
 
 
 @ufs.on_message((filters.private | filters.group) & filters.command('connect'))
-async def add_connection(client, message):
+async def add_connection_fn(client, message):
     global group_id
     userid = message.from_user.id if message.from_user else None
     if not userid:
@@ -99,7 +99,7 @@ async def add_connection(client, message):
 
 
 @ufs.on_message((filters.private | filters.group) & filters.command('disconnect'))
-async def delete_connection(client, message):
+async def delete_connection_fn(client, message):
     userid = message.from_user.id if message.from_user else None
     if not userid:
         return await message.reply(f"You are anonymous admin. Use /connect {message.chat.id} in PM")

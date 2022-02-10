@@ -37,18 +37,18 @@ bot_start_time = time.time()
 
 # MongoDB client
 print("[INFO]: INITIALIZING DATABASE")
-# mongo_client = MongoClient(MONGO_URL)
-# ufs_db = mongo_client.ufsbotz
-mongo_client = pymongo.MongoClient(MONGO_URL)
-ufs_db = mongo_client['ufsbotz']
+mongo_client = MongoClient(MONGO_URL)
+ufs_db = mongo_client.ufsbotz
+# mongo_client = pymongo.MongoClient(MONGO_URL)
+# ufs_db = mongo_client['ufsbotz']
 
 
 async def load_sudoers():
     global SUDOERS
     print("[INFO]: LOADING SUDOERS")
-    # sudoersdb = ufs_db.sudoers
-    sudoersdb = ufs_db['sudoers']
-    sudoers = sudoersdb.find_one({"sudo": "sudo"})
+    sudoersdb = ufs_db.sudoers
+    # sudoersdb = ufs_db['sudoers']
+    sudoers = await sudoersdb.find_one({"sudo": "sudo"})
     sudoers = [] if not sudoers else sudoers["sudoers"]
     for user_id in SUDOERS:
         if user_id not in sudoers:
