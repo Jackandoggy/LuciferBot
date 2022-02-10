@@ -6,7 +6,7 @@ from ufsbotz.utils.dbfunctions import (add_connection, add_settings,
                                        is_settings_exist, delete_connection,
                                        all_connections, if_active)
 
-__help__ = """Help: <b>Connections</b>
+__HELP__ = """Help: <b>Connections</b>
 
 - Used to connect bot to PM for managing filters 
 - it helps to avoid spamming in groups.
@@ -20,7 +20,7 @@ __help__ = """Help: <b>Connections</b>
 • /disconnect  - <code>disconnect from a chat</code>
 • /connections - <code>list all your connections</code>"""
 
-__mod_name__ = "Connections"
+__MODULE__ = "Connections"
 
 
 @ufs.on_message((filters.private | filters.group) & filters.command('connect'))
