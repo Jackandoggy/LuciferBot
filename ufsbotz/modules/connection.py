@@ -1,7 +1,7 @@
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from ufsbotz import SUDOERS, ufs
+from ufsbotz import SUDOERS, ufs, LOG_GROUP_ID
 from ufsbotz.utils.dbfunctions import (add_connection, add_settings,
                                        is_settings_exist, delete_connection,
                                        all_connections, if_active)
@@ -94,6 +94,7 @@ async def add_connection_fn(client, message):
     except Exception as e:
         print(str(e))
         # logger.exception(e)
+        await ufs.send_message(LOG_GROUP_ID, f'`{e}`')
         await message.reply_text('Some error occurred! Try again later.', quote=True)
         return
 
