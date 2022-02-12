@@ -108,7 +108,8 @@ async def locks_func(_, message):
                         )
                                  )
         await message.reply(f"Unlocked Everything in {message.chat.title}")
-                  
+
+
 @ufs.on_message(filters.command("locks") & ~filters.private)
 @capture_err
 async def locktypes(_, message):
