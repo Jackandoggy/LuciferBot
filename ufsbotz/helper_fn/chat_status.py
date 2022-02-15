@@ -49,11 +49,11 @@ def get_active_connection(client, message):
 
     chat_type = message.chat.type
     if chat_type == "private":
-        grpid = await active_connection(str(userid))
+        grpid = active_connection(str(userid))
         if grpid is not None:
             CHAT_ID = grpid
             try:
-                chat = await client.get_chat(grpid)
+                chat = client.get_chat(grpid)
                 TITLE = chat.title
                 return CHAT_ID, TITLE, True, ''
             except:
