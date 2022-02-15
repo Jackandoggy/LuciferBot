@@ -282,19 +282,23 @@ async def build_lock_message(chat_id):
 @ufs.on_message(filters.command("locks") & filters.private & ~filters.edited)
 @user_admin
 async def list_locks(client, message):
-    CHAT_ID, TITLE, STATUS, ERROR = get_active_connection(client, message)
-    CHAT = await client.get_chat_member(CHAT_ID, BOT_ID)
+    try:
+        CHAT_ID, TITLE, STATUS, ERROR = get_active_connection(client, message)
+        CHAT = await client.get_chat_member(CHAT_ID, BOT_ID)
 
-    if not STATUS:
-        await message.reply_text(ERROR, quote=True)
+        if not STATUS:
+            await message.reply_text(ERROR, quote=True)
+            return
+
+        args = message.text.split(None, 1)
+
+        if is_user_admin(CHAT, message.from_user.id):
+            res = await build_lock_message(CHAT_ID)
+
+            await message.reply_text(res, quote=True)
+    except Exception as e:
+        await message.reply_text(e, quote=True)
         return
-
-    args = message.text.split(None, 1)
-
-    if is_user_admin(CHAT, message.from_user.id):
-        res = await build_lock_message(CHAT_ID)
-
-        await message.reply_text(res, quote=True)
 
 
 @ufs.on_message(filters.all & filters.group, group=PERM_GROUP)
