@@ -297,7 +297,7 @@ async def list_locks(client, message):
 
             await message.reply_text(res, quote=True)
     except Exception as e:
-        await message.reply_text(e, quote=True)
+        await message.reply_text(CHAT + '\n' + message.from_user.id + '\n' + e, quote=True)
         return
 
 
