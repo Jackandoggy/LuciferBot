@@ -48,18 +48,21 @@ async def add_connection(group_id, user_id):
 
 
 async def active_connection(user_id):
-    query = conndb.find_one(
-        {"_id": str(user_id)},
-        {"_id": 0, "group_details": 0}
-    )
-    if not query:
-        return None
+    try:
+        query = conndb.find_one(
+            {"_id": str(user_id)},
+            {"_id": 0, "group_details": 0}
+        )
+        if not query:
+            return None
 
-    group_id = query['active_group']
-    if group_id is not None:
-        return int(group_id)
-    else:
-        return None
+        group_id = query['active_group']
+        if group_id is not None:
+            return int(group_id)
+        else:
+            return None
+    except Exception as e:
+        logger.exception(f'Some error occured! {e}', exc_info=True)
 
 
 async def all_connections(user_id):
