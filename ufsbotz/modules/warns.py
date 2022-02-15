@@ -33,7 +33,7 @@ def warn(user: User, chat: Chat, reason: str, message: Message, warner: User = N
     limit, soft_warn = warns_db.get_warn_settings(chat.id)
     num_warns, reasons = warns_db.add_warns(user.id, chat.id, reason)
     if num_warns >= limit:
-        await warns_db.reset_warns(user.id, chat.id)
+        warns_db.reset_warns(user.id, chat.id)
         if soft_warn:  # kick
             chat.unban_member(user.id)
             reply = "{} warnings, {} has been kicked!".format(limit, user.mention)
@@ -125,7 +125,7 @@ async def reset_warns(client, message):
     user_id = extract_userid(message, args[1]) or message.from_user.id
 
     if user_id:
-        await warns_db.reset_warns(user_id, CHAT.id)
+        warns_db.reset_warns(user_id, CHAT.id)
         await message.reply_text("Warnings have been reset!")
         warned = CHAT.get_member(user_id).user
         log = "<b>{}:</b>" \
