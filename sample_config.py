@@ -20,3 +20,9 @@ ARQ_API_KEY = environ.get("ARQ_API_KEY", None)
 RSS_DELAY = int(environ.get("RSS_DELAY", '0'))
 PICS = (environ.get('PICS', 'https://telegra.ph/file/0ff51496ce70215e999b7.jpg https://telegra.ph/file/b5a8a390351662d134f64.jpg')).split()
 UPSTREAM_REPO = environ.get("UPSTREAM_REPO", "https://github.com/rozari0/NezukoBot.git")
+LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-724048562'))
+
+DEL_CMDS = True  # Whether or not you should delete "blue text must click" commands
+STRICT_GBAN = False
+STRICT_GMUTE = False
+

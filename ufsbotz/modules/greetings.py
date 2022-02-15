@@ -11,7 +11,7 @@ from pyrogram.types import (Chat, ChatPermissions, InlineKeyboardButton,
 
 from ufsbotz import SUDOERS, WELCOME_DELAY_KICK_SEC, ufs
 from ufsbotz.core.decorators.errors import capture_err
-from ufsbotz.core.decorators.permissions import adminsOnly
+from ufsbotz.helper_fn.chat_status import adminsOnly
 from ufsbotz.core.keyboard import ikb
 from ufsbotz.database.captcha_db import get_captcha_cache, is_captcha_on, has_solved_captcha_once, update_captcha_cache, \
     save_captcha_solved, captcha_on, captcha_off

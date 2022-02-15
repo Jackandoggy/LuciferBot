@@ -11,22 +11,6 @@ from ufsbotz.database.connection_db import (add_connection, delete_connection, a
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
-__HELP__ = """Help: <b>Connections</b>
-
-- Used to connect bot to PM for managing filters 
-- it helps to avoid spamming in groups.
-
-<b>NOTE:</b>
-1. Only admins can add a connection.
-2. Send <code>/connect</code> for connecting me to ur PM
-
-<b>Commands and Usage:</b>
-• /connect  - <code>connect a particular chat to your PM</code>
-• /disconnect  - <code>disconnect from a chat</code>
-• /connections - <code>list all your connections</code>"""
-
-__MODULE__ = "Connections"
-
 
 @ufs.on_message((filters.private | filters.group) & filters.command('connect'))
 async def add_connection_fn(client, message):
@@ -311,3 +295,20 @@ async def cbh_connection_back(client, query):
                 "Your connected group details ;\n\n",
                 reply_markup=InlineKeyboardMarkup(buttons)
             )
+
+
+__HELP__ = """Help: <b>Connections</b>
+
+- Used to connect bot to PM for managing filters 
+- it helps to avoid spamming in groups.
+
+<b>NOTE:</b>
+1. Only admins can add a connection.
+2. Send <code>/connect</code> for connecting me to ur PM
+
+<b>Commands and Usage:</b>
+• /connect  - <code>connect a particular chat to your PM</code>
+• /disconnect  - <code>disconnect from a chat</code>
+• /connections - <code>list all your connections</code>"""
+
+__MODULE__ = "Connections"

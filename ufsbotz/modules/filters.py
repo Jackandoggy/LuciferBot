@@ -4,7 +4,7 @@ from pyrogram import filters
 
 from ufsbotz import ufs
 from ufsbotz.core.decorators.errors import capture_err
-from ufsbotz.core.decorators.permissions import adminsOnly
+from ufsbotz.helper_fn.chat_status import adminsOnly
 from ufsbotz.core.keyboard import ikb
 from ufsbotz.database.filters_db import save_filter, get_filters_names, delete_filter, get_filter
 from ufsbotz.utils.filter_groups import chat_filters_group

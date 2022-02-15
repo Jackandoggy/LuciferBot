@@ -4,7 +4,7 @@ from pyrogram import filters
 
 from ufsbotz import ufs
 from ufsbotz.core.decorators.errors import capture_err
-from ufsbotz.core.decorators.permissions import adminsOnly
+from ufsbotz.helper_fn.chat_status import adminsOnly
 from ufsbotz.core.sections import section
 from ufsbotz.database.karma_db import is_karma_on, get_karma, update_karma, get_karmas, karma_on, karma_off
 from ufsbotz.utils.dbfunctions import int_to_alpha, alpha_to_int

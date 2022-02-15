@@ -280,3 +280,7 @@ async def get_user_id_and_usernames(client) -> dict:
             'SELECT * FROM peers WHERE type in ("user", "bot") AND username NOT null'
         ).fetchall()
     return {user[0]: user[3] for user in users}
+
+
+def extract_text(message) -> str:
+    return message.text or message.caption or (message.sticker.emoji if message.sticker else None)

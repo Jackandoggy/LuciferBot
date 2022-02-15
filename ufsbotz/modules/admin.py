@@ -7,7 +7,7 @@ from ufsbotz import BOT_ID, SUDOERS, ufs
 from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.core.keyboard import ikb
 from ufsbotz.database.filters_db import save_filter
-from ufsbotz.database.warns_db import get_warn, remove_warns, add_warn
+from ufsbotz.helper_fn.chat_status import adminsOnly
 from ufsbotz.utils.dbfunctions import int_to_alpha
 from ufsbotz.utils.functions import (extract_user, extract_user_and_reason,
                                      time_converter)
@@ -61,9 +61,6 @@ async def member_permissions(chat_id: int, user_id: int):
     if member.can_manage_voice_chats:
         perms.append("can_manage_voice_chats")
     return perms
-
-
-from ufsbotz.core.decorators.permissions import adminsOnly
 
 
 async def list_admins(chat_id: int):
@@ -471,122 +468,122 @@ async def ban_deleted_accounts(_, message: Message):
         await message.reply_text("There are no deleted accounts in this chat")
 
 
-@ufs.on_message(
-    filters.command(["warn", "dwarn"]) & ~filters.edited & ~filters.private
-)
-@adminsOnly("can_restrict_members")
-async def warn_user(_, message: Message):
-    user_id, reason = await extract_user_and_reason(message)
-    chat_id = message.chat.id
-    if not user_id:
-        return await message.reply_text("I can't find that user.")
-    if user_id == BOT_ID:
-        return await message.reply_text(
-            "I can't warn myself, i can leave if you want."
-        )
-    if user_id in SUDOERS:
-        return await message.reply_text(
-            "You Wanna Warn The Elevated One?, RECONSIDER!"
-        )
-    if user_id in (await list_admins(chat_id)):
-        return await message.reply_text(
-            "I can't warn an admin, You know the rules, so do i."
-        )
-    if user_id not in (await list_members(chat_id)):
-        return await message.reply_text("This user isn't here.")
-    user, warns = await asyncio.gather(
-        ufs.get_users(user_id),
-        get_warn(chat_id, await int_to_alpha(user_id)),
-    )
-    mention = user.mention
-    keyboard = ikb({"🚨  Remove Warn  🚨": f"unwarn_{user_id}"})
-    warns = warns["warns"] if warns else 0
-    if message.command[0][0] == "d":
-        await message.reply_to_message.delete()
-    if warns >= 2:
-        await message.chat.ban_member(user_id, 60)
-        await message.reply_text(
-            f"Number of warns of {mention} exceeded, BANNED!"
-        )
-        await remove_warns(chat_id, await int_to_alpha(user_id))
-    else:
-        warn = {"warns": warns + 1}
-        msg = f"""
-**Warned User:** {mention}
-**Warned By:** {message.from_user.mention if message.from_user else 'Anon'}
-**Reason:** {reason or 'No Reason Provided.'}
-**Warns:** {warns + 1}/3"""
-        await message.reply_text(msg, reply_markup=keyboard)
-        await add_warn(chat_id, await int_to_alpha(user_id), warn)
-
-
-@ufs.on_callback_query(filters.regex("unwarn_"))
-async def remove_warning(_, cq: CallbackQuery):
-    from_user = cq.from_user
-    chat_id = cq.message.chat.id
-    permissions = await member_permissions(chat_id, from_user.id)
-    permission = "can_restrict_members"
-    if permission not in permissions:
-        return await cq.answer(
-            "You don't have enough permissions to perform this action.\n"
-            + f"Permission needed: {permission}",
-            show_alert=True,
-        )
-    user_id = cq.data.split("_")[1]
-    warns = await get_warn(chat_id, await int_to_alpha(user_id))
-    if warns:
-        warns = warns["warns"]
-    if not warns or warns == 0:
-        return await cq.answer("User has no warnings.")
-    warn = {"warns": warns - 1}
-    await add_warn(chat_id, await int_to_alpha(user_id), warn)
-    text = cq.message.text.markdown
-    text = f"~~{text}~~\n\n"
-    text += f"__Warn removed by {from_user.mention}__"
-    await cq.message.edit(text)
-
-
-# Rmwarns
-
-
-@ufs.on_message(
-    filters.command("rmwarns") & ~filters.edited & ~filters.private
-)
-@adminsOnly("can_restrict_members")
-async def remove_warnings(_, message: Message):
-    if not message.reply_to_message:
-        return await message.reply_text(
-            "Reply to a message to remove a user's warnings."
-        )
-    user_id = message.reply_to_message.from_user.id
-    mention = message.reply_to_message.from_user.mention
-    chat_id = message.chat.id
-    warns = await get_warn(chat_id, await int_to_alpha(user_id))
-    if warns:
-        warns = warns["warns"]
-    if warns == 0 or not warns:
-        await message.reply_text(f"{mention} have no warnings.")
-    else:
-        await remove_warns(chat_id, await int_to_alpha(user_id))
-        await message.reply_text(f"Removed warnings of {mention}.")
-
-
-# Warns
-
-
-@ufs.on_message(filters.command("warns") & ~filters.edited & ~filters.private)
-@capture_err
-async def check_warns(_, message: Message):
-    user_id = await extract_user(message)
-    if not user_id:
-        return await message.reply_text("I can't find that user.")
-    warns = await get_warn(message.chat.id, await int_to_alpha(user_id))
-    mention = (await ufs.get_users(user_id)).mention
-    if warns:
-        warns = warns["warns"]
-    else:
-        return await message.reply_text(f"{mention} has no warnings.")
-    return await message.reply_text(f"{mention} has {warns}/3 warnings.")
+# @ufs.on_message(
+#     filters.command(["warn", "dwarn"]) & ~filters.edited & ~filters.private
+# )
+# @adminsOnly("can_restrict_members")
+# async def warn_user(_, message: Message):
+#     user_id, reason = await extract_user_and_reason(message)
+#     chat_id = message.chat.id
+#     if not user_id:
+#         return await message.reply_text("I can't find that user.")
+#     if user_id == BOT_ID:
+#         return await message.reply_text(
+#             "I can't warn myself, i can leave if you want."
+#         )
+#     if user_id in SUDOERS:
+#         return await message.reply_text(
+#             "You Wanna Warn The Elevated One?, RECONSIDER!"
+#         )
+#     if user_id in (await list_admins(chat_id)):
+#         return await message.reply_text(
+#             "I can't warn an admin, You know the rules, so do i."
+#         )
+#     if user_id not in (await list_members(chat_id)):
+#         return await message.reply_text("This user isn't here.")
+#     user, warns = await asyncio.gather(
+#         ufs.get_users(user_id),
+#         get_warn(chat_id, await int_to_alpha(user_id)),
+#     )
+#     mention = user.mention
+#     keyboard = ikb({"🚨  Remove Warn  🚨": f"unwarn_{user_id}"})
+#     warns = warns["warns"] if warns else 0
+#     if message.command[0][0] == "d":
+#         await message.reply_to_message.delete()
+#     if warns >= 2:
+#         await message.chat.ban_member(user_id, 60)
+#         await message.reply_text(
+#             f"Number of warns of {mention} exceeded, BANNED!"
+#         )
+#         await remove_warns(chat_id, await int_to_alpha(user_id))
+#     else:
+#         warn = {"warns": warns + 1}
+#         msg = f"""
+# **Warned User:** {mention}
+# **Warned By:** {message.from_user.mention if message.from_user else 'Anon'}
+# **Reason:** {reason or 'No Reason Provided.'}
+# **Warns:** {warns + 1}/3"""
+#         await message.reply_text(msg, reply_markup=keyboard)
+#         await add_warn(chat_id, await int_to_alpha(user_id), warn)
+#
+#
+# @ufs.on_callback_query(filters.regex("unwarn_"))
+# async def remove_warning(_, cq: CallbackQuery):
+#     from_user = cq.from_user
+#     chat_id = cq.message.chat.id
+#     permissions = await member_permissions(chat_id, from_user.id)
+#     permission = "can_restrict_members"
+#     if permission not in permissions:
+#         return await cq.answer(
+#             "You don't have enough permissions to perform this action.\n"
+#             + f"Permission needed: {permission}",
+#             show_alert=True,
+#         )
+#     user_id = cq.data.split("_")[1]
+#     warns = await get_warn(chat_id, await int_to_alpha(user_id))
+#     if warns:
+#         warns = warns["warns"]
+#     if not warns or warns == 0:
+#         return await cq.answer("User has no warnings.")
+#     warn = {"warns": warns - 1}
+#     await add_warn(chat_id, await int_to_alpha(user_id), warn)
+#     text = cq.message.text.markdown
+#     text = f"~~{text}~~\n\n"
+#     text += f"__Warn removed by {from_user.mention}__"
+#     await cq.message.edit(text)
+#
+#
+# # Rmwarns
+#
+#
+# @ufs.on_message(
+#     filters.command("rmwarns") & ~filters.edited & ~filters.private
+# )
+# @adminsOnly("can_restrict_members")
+# async def remove_warnings(_, message: Message):
+#     if not message.reply_to_message:
+#         return await message.reply_text(
+#             "Reply to a message to remove a user's warnings."
+#         )
+#     user_id = message.reply_to_message.from_user.id
+#     mention = message.reply_to_message.from_user.mention
+#     chat_id = message.chat.id
+#     warns = await get_warn(chat_id, await int_to_alpha(user_id))
+#     if warns:
+#         warns = warns["warns"]
+#     if warns == 0 or not warns:
+#         await message.reply_text(f"{mention} have no warnings.")
+#     else:
+#         await remove_warns(chat_id, await int_to_alpha(user_id))
+#         await message.reply_text(f"Removed warnings of {mention}.")
+#
+#
+# # Warns
+#
+#
+# @ufs.on_message(filters.command("warns") & ~filters.edited & ~filters.private)
+# @capture_err
+# async def check_warns(_, message: Message):
+#     user_id = await extract_user(message)
+#     if not user_id:
+#         return await message.reply_text("I can't find that user.")
+#     warns = await get_warn(message.chat.id, await int_to_alpha(user_id))
+#     mention = (await ufs.get_users(user_id)).mention
+#     if warns:
+#         warns = warns["warns"]
+#     else:
+#         return await message.reply_text(f"{mention} has no warnings.")
+#     return await message.reply_text(f"{mention} has {warns}/3 warnings.")
 
 
 # Report

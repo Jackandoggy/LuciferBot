@@ -13,7 +13,6 @@ from ufsbotz.database.karma_db import get_karmas_count
 from ufsbotz.database.note_db import get_notes_count
 from ufsbotz.database.rss_db import get_rss_feeds_count
 from ufsbotz.database.users_db import get_served_users
-from ufsbotz.database.warns_db import get_warns_count
 from ufsbotz.modules import ALL_MODULES
 from ufsbotz.utils.http import get
 from ufsbotz.utils.inlinefuncs import keywords_list

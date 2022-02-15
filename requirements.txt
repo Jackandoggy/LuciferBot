@@ -2,7 +2,7 @@ git+https://github.com/jinspalakkattu/pyrogram@master
 git+https://github.com/hellysmile/fake-useragent/
 cinemagoer
 TgCrypto==1.2.2
-marshmallow==3.12.2
+marshmallow==3.14.1
 python-decouple
 aiohttp
 aiofiles
@@ -29,6 +29,6 @@ fuzzysearch
 dnspython
 requests
 
-motor==2.4.0
-pymongo[srv]==3.11.4
-umongo==3.0.0
+motor==2.5.1
+pymongo[srv]==3.12.3
+umongo==3.0.1

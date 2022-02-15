@@ -4,7 +4,7 @@ from ufsbotz.database.filters_db import get_nsfw_status, set_nsfw_status
 from ufsbotz.utils.http import get
 from ufsbotz import ufs
 from ufsbotz.core.decorators.errors import capture_err
-from ufsbotz.core.decorators.permissions import adminsOnly
+from ufsbotz.helper_fn.chat_status import adminsOnly
 
 __MODULE__ = "Anime Pics"
 __HELP__ = "**Get SFW (Safe for work) Anime Pics. Try This Commands:**"

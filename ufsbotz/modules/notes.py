@@ -5,7 +5,7 @@ from pyrogram import filters
 from ufsbotz import SUDOERS, ufs, eor
 from ufsbotz import LOG_GROUP_ID as USERBOT_ID
 from ufsbotz.core.decorators.errors import capture_err
-from ufsbotz.core.decorators.permissions import adminsOnly
+from ufsbotz.helper_fn.chat_status import adminsOnly
 from ufsbotz.core.keyboard import ikb
 from ufsbotz.database.note_db import save_note, get_note_names, get_note, delete_note
 from ufsbotz.utils.functions import extract_text_and_keyb

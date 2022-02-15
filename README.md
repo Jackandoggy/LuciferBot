@@ -3,7 +3,7 @@
 </h1>
 
 <h3 align="center">
-    Telegram Group Manager Bot Written In Python Using Pyrogram.
+    Telegram Group Manager Bot Written In Python Using Pyrogram (Not Ready, Dev Mode).
 </h3>
 <h4 align="center">
     :exclamation: Please star this project before using it.
@@ -26,7 +26,7 @@
 </p>
 
 <h3 align="center">
-    Ready to use method
+    Not Ready To Use Method
 </h3>
 
 <p align="center">

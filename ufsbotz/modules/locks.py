@@ -1,146 +1,484 @@
-from pyrogram import filters
-from pyrogram.errors.exceptions.bad_request_400 import ChatNotModified
-from pyrogram.types import ChatPermissions
+import logging.config
+from ufsbotz import *
+from pyrogram.types import ChatPermissions, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram import Client, filters, mime_types
+from pyrogram.errors import ChatAdminRequired, BadRequest
 
-from ufsbotz import SUDOERS, ufs
+
+# Get logging configurations
 from ufsbotz.core.decorators.errors import capture_err
-from ufsbotz.core.decorators.permissions import adminsOnly
-from ufsbotz.modules.admin import current_chat_permissions, list_admins
-from ufsbotz.utils.functions import get_urls_from_text
+from ufsbotz.database import warns_db
+from ufsbotz.database.locks_db import lock_db
+from ufsbotz.helper_fn.chat_status import user_admin, get_active_connection, bot_can_delete, can_delete, is_user_admin, \
+    user_not_admin, is_bot_admin
 
-__MODULE__ = "Locks"
-__HELP__ = """
-Commands: /lock | /unlock | /locks [No Parameters Required]
+logging.config.fileConfig('logging.conf')
+logging.getLogger().setLevel(logging.INFO)
+logging.getLogger("pyrogram").setLevel(logging.ERROR)
+logging.getLogger("imdbpy").setLevel(logging.ERROR)
 
-Parameters:
-    messages | stickers | gifs | media | games | polls
+URL = ("https://" or "http://")
+LOCK_TYPES = {'sticker': filters.sticker,
+              'audio': filters.audio,
+              'voice': filters.voice,
+              'document': filters.document,
+              'video': filters.video,
+              'contact': filters.contact,
+              'photo': filters.photo,
+              'gif': filters.document & filters.animation,
+              'url': filters.regex("https://" or "http://"),
+              'bots': filters.new_chat_members,
+              'forward': filters.forwarded,
+              'game': filters.game,
+              'location': filters.location,
+              }
 
-    inline  | url | group_info | user_add | pin
+GIF = filters.document & filters.animation
+OTHER = filters.game | filters.sticker | GIF
+MEDIA = filters.audio | filters.document | filters.video | filters.voice | filters.photo
+MESSAGES = filters.text | filters.contact | filters.location | filters.venue | filters.command | MEDIA | OTHER
+PREVIEWS = filters.regex("https://" or "http://")
 
-You can only pass the "all" parameter with /lock, not with /unlock
+RESTRICTION_TYPES = {'messages': MESSAGES,
+                     'media': MEDIA,
+                     'other': OTHER,
+                     'previews': PREVIEWS,  # NOTE: this has been removed cos its useless atm.
+                     'all': filters.all}
 
-Example:
-    /lock all
-"""
-
-incorrect_parameters = "Incorrect Parameters, Check Locks Section In Help."
-# Using disable_preview as a switch for url checker
-# That way we won't need an additional db to check
-# If url lock is enabled/disabled for a chat
-data = {
-    "messages": "can_send_messages",
-    "stickers": "can_send_stickers",
-    "gifs": "can_send_animations",
-    "media": "can_send_media_messages",
-    "games": "can_send_games",
-    "inline": "can_use_inline_bots",
-    "url": "can_add_web_page_previews",
-    "polls": "can_send_polls",
-    "group_info": "can_change_info",
-    "useradd": "can_invite_users",
-    "pin": "can_pin_messages",
-}
+PERM_GROUP = 1
+REST_GROUP = 2
 
 
-async def tg_lock(message, permissions: list, perm: str, lock: bool):
-    if lock:
-        if perm not in permissions:
-            return await message.reply_text("Already locked.")
-        permissions.remove(perm)
-    elif perm in permissions:
-        return await message.reply_text("Already Unlocked.")
+# NOT ASYNC
+async def restr_members(bot, chat_id, members, messages=False, media=False, other=False, previews=False):
+    for mem in members:
+        if (
+                mem.status != 'administrator' and
+                mem.status != 'creator' and
+                str(mem.user.id) not in SUDOERS and
+                mem.user.is_bot != True
+        ):
+            try:
+                await bot.restrict_chat_member(chat_id, mem.user.id,
+                                               ChatPermissions(can_send_messages=messages,
+                                                               can_send_media_messages=media,
+                                                               can_send_other_messages=other,
+                                                               can_add_web_page_previews=previews))
+                # await bot.restrict_chat(chat_id,
+                #                         ChatPermissions(can_send_messages=messages,
+                #                                         can_send_media_messages=media,
+                #                                         can_send_other_messages=other,
+                #                                         can_add_web_page_previews=previews))
+            except Exception as e:
+                pass
+        else:
+            pass
+
+
+# NOT ASYNC
+async def unrestr_members(bot, chat_id, members, messages=True, media=True, other=True, previews=True):
+    for mem in members:
+        try:
+            await bot.restrict_chat_member(chat_id, mem.user.id,
+                                           ChatPermissions(can_send_messages=messages,
+                                                           can_send_media_messages=media,
+                                                           can_send_other_messages=other,
+                                                           can_add_web_page_previews=previews))
+        except Exception as e:
+            pass
+
+
+@ufs.on_message(filters.command("locktypes") & filters.incoming & ~filters.edited)
+async def locktypes(client, message):
+    await message.reply_text("\n - ".join(["Locks: "] + list(LOCK_TYPES) + list(RESTRICTION_TYPES)), quote=True)
+
+
+@ufs.on_message(filters.command("lock") & filters.private & ~filters.edited)
+@user_admin
+@bot_can_delete
+@capture_err
+async def lock(client, message):
+    CHAT_ID, TITLE, STATUS, ERROR = get_active_connection(client, message)
+    CHAT = await client.get_chat_member(CHAT_ID, BOT_ID)
+
+    if not STATUS:
+        await message.reply_text(ERROR, quote=True)
+        return
+
+    args = message.text.split(None, 1)
+
+    if not await lock_db.is_locks_exist(str(CHAT_ID)):
+        await lock_db.add_locks(str(CHAT_ID), False)
+        await lock_db.add_restrictions(str(CHAT_ID), False)
+
+    if can_delete(CHAT, BOT_ID):
+        if len(args) >= 1:
+            if args[1] in LOCK_TYPES:
+                await lock_db.update_locks(CHAT_ID, str(args[1]).lower(), True)
+                await message.reply_text("Locked **{}** Messages!".format(str(args[1]).lower()))
+                log = "**{}:**" \
+                      "\n#LOCK" \
+                      "\n**Admin:** {}" \
+                      "\nLocked **{}**.".format(TITLE, message.from_user.mention, str(args[1]).lower())
+                if LOG_CHANNEL:
+                    try:
+                        return await client.send_message(LOG_CHANNEL, log)
+                    except ChatAdminRequired:
+                        await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission")
+                        return
+                else:
+                    return
+            elif args[1] in RESTRICTION_TYPES:
+                await lock_db.update_restrictions(CHAT_ID, str(args[1]).lower(), True)
+                members = await client.get_chat_members(chat_id=str(CHAT_ID), limit=client.get_chat_members_count(str(CHAT_ID)), filter="all")
+
+                if args[1] == "messages":
+                    await restr_members(client, str(CHAT_ID), members, messages=False, media=True, other=True,
+                                        previews=True)
+                elif args[1] == "media":
+                    await restr_members(client, str(CHAT_ID), members, messages=False, media=False, other=True,
+                                        previews=True)
+                elif args[1] == "other":
+                    await restr_members(client, str(CHAT_ID), members, messages=False, media=False, other=False,
+                                        previews=True)
+                elif args[1] == "previews":
+                    await restr_members(client, str(CHAT_ID), members, messages=False, media=False, other=False,
+                                        previews=False)
+                elif args[1] == "all":
+                    await restr_members(client, str(CHAT_ID), members, messages=False, media=False, other=False,
+                                        previews=False)
+                """if args[0] == "previews":
+                    members = users_sql.get_chat_members(str(history.chat_id1))
+                    await restr_members(bot, history.chat_id1, members, messages=False, media=False, other=False,
+                                        previews=False)"""
+
+                await message.reply_text("Locked **{}** Messages!".format(str(args[1]).lower()))
+                log = "**{}:**" \
+                      "\n#LOCK" \
+                      "\n**Admin:** {}" \
+                      "\nLocked **{}**.".format(TITLE, message.from_user.mention, str(args[1]).lower())
+                if LOG_CHANNEL:
+                    try:
+                        return await client.send_message(LOG_CHANNEL, log)
+                    except ChatAdminRequired:
+                        await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission")
+                        return
+                else:
+                    return
+
+            else:
+                message.reply_text("What Are You Trying To Lock...? Try /locktypes For The List Of Lockable")
     else:
-        permissions.append(perm)
+        await message.reply_text("I'm Not An Administrator, Or Haven't Got Delete Rights.", quote=True)
+        return
 
-    permissions = {perm: True for perm in list(set(permissions))}
+
+@ufs.on_message(filters.command("unlock") & filters.private & ~filters.edited)
+@user_admin
+@capture_err
+async def unlock(client, message):
+    CHAT_ID, TITLE, STATUS, ERROR = get_active_connection(client, message)
+    CHAT = await client.get_chat_member(CHAT_ID, BOT_ID)
+
+    if not STATUS:
+        await message.reply_text(ERROR, quote=True)
+        return
+
+    args = message.text.split(None, 1)
+
+    if not await lock_db.is_locks_exist(str(CHAT_ID)):
+        await lock_db.add_locks(str(CHAT_ID), False)
+        await lock_db.add_restrictions(str(CHAT_ID), False)
+
+    if is_user_admin(CHAT, message.from_user.id):
+        if len(args) >= 1:
+            if args[1] in LOCK_TYPES:
+                await lock_db.update_locks(CHAT_ID, str(args[1]).lower(), False)
+                await message.reply_text("Unlocked **{}** For Everyone!".format(str(args[1]).lower()))
+                log = "**{}:**" \
+                      "\n#UNLOCK" \
+                      "\n**Admin:** {}" \
+                      "\nUnlocked **{}**.".format(TITLE, message.from_user.mention, str(args[1]).lower())
+                if LOG_CHANNEL:
+                    try:
+                        return await client.send_message(LOG_CHANNEL, log)
+                    except ChatAdminRequired:
+                        await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission")
+                        return
+                else:
+                    return
+            elif args[1] in RESTRICTION_TYPES:
+                await lock_db.update_restrictions(CHAT_ID, str(args[1]).lower(), False)
+                members = await client.get_chat_members(chat_id=str(CHAT_ID), limit=client.get_chat_members_count(str(CHAT_ID)), filter="all")
+
+                if args[0] == "messages":
+                    await unrestr_members(client, CHAT_ID, members, media=False, other=False, previews=False)
+                elif args[0] == "media":
+                    await unrestr_members(client, CHAT_ID, members, other=False, previews=False)
+                elif args[0] == "other":
+                    await unrestr_members(client, CHAT_ID, members, previews=False)
+                elif args[0] == "previews":
+                    await unrestr_members(client, CHAT_ID, members)
+                elif args[0] == "all":
+                    await unrestr_members(client, CHAT_ID, members, True, True, True, True)
+
+                await message.reply_text("Unlocked **{}** For Everyone!".format(str(args[1]).lower()))
+                log = "**{}:**" \
+                      "\n#UNLOCK" \
+                      "\n**Admin:** {}" \
+                      "\nUnlocked **{}**.".format(TITLE, message.from_user.mention, str(args[1]).lower())
+                if LOG_CHANNEL:
+                    try:
+                        return await client.send_message(LOG_CHANNEL, log)
+                    except ChatAdminRequired:
+                        await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission",
+                                                 parse_mode="md")
+                        return
+                else:
+                    return
+
+            else:
+                message.reply_text("What Are You Trying To Unlock...? Try /locktypes For The List Of Lockable")
+        else:
+            client.sendMessage(message.chat.id, "What Are You Trying To Unlock...?")
+    else:
+        await message.reply_text("I'm Not An Administrator, Or Haven't Got Delete Rights.", quote=True)
+        return
+
+
+async def build_lock_message(chat_id):
+    locks = await lock_db.get_locks(chat_id)
+    restr = await lock_db.get_restrictions(chat_id)
+    if not (locks or restr):
+        res = "There Are No Current Locks In This Chat."
+    else:
+        res = "These Are The Locks In This Chat:"
+        if locks:
+            res += "\n - sticker = `{}`" \
+                   "\n - audio = `{}`" \
+                   "\n - voice = `{}`" \
+                   "\n - document = `{}`" \
+                   "\n - video = `{}`" \
+                   "\n - contact = `{}`" \
+                   "\n - photo = `{}`" \
+                   "\n - gif = `{}`" \
+                   "\n - url = `{}`" \
+                   "\n - bots = `{}`" \
+                   "\n - forward = `{}`" \
+                   "\n - game = `{}`" \
+                   "\n - location = `{}`".format(locks["sticker"], locks["audio"], locks["voice"], locks["document"],
+                                                 locks["video"], locks["contact"], locks["photo"], locks["gif"], locks["url"],
+                                                 locks["bots"], locks["forward"], locks["game"], locks["location"])
+        if restr:
+            res += "\n - messages = `{}`" \
+                   "\n - media = `{}`" \
+                   "\n - other = `{}`" \
+                   "\n - previews = `{}`" \
+                   "\n - all = `{}`".format(restr["messages"], restr["media"], restr["other"], restr["preview"],
+                                            all([restr["messages"], restr["media"], restr["other"], restr["preview"]]))
+    return res
+
+
+@ufs.on_message(filters.command("locks") & filters.private & ~filters.edited)
+@user_admin
+async def list_locks(client, message):
+    CHAT_ID, TITLE, STATUS, ERROR = get_active_connection(client, message)
+    CHAT = await client.get_chat_member(CHAT_ID, BOT_ID)
+
+    if not STATUS:
+        await message.reply_text(ERROR, quote=True)
+        return
+
+    args = message.text.split(None, 1)
+
+    if is_user_admin(CHAT, message.from_user.id):
+        res = await build_lock_message(CHAT_ID)
+
+        await message.reply_text(res, quote=True)
+
+
+@ufs.on_message(filters.all & filters.group, group=PERM_GROUP)
+@user_not_admin
+async def del_lockables(client, message):
+    global log_reason
+    chat = message.chat
+    warner = ""
+
+    for lockable, m_filter in LOCK_TYPES.items():
+        if filter(message, LOCK_TYPES.items()) and \
+                await lock_db.is_locked(chat.id, lockable) \
+                and can_delete(chat.id, BOT_ID):
+            if lockable == "bots":
+                new_members = message.new_chat_members
+                for new_mem in new_members:
+                    if new_mem.is_bot:
+                        if not is_bot_admin(chat, BOT_ID):
+                            message.reply_text("I see a bot, and I've been told to stop them joining... "
+                                               "but I'm not admin!")
+                            return
+
+                        # await client.ban_chat_member(chat.id, new_mem.id)     # int(time.time() + 86400
+                        message.reply_text("Only Admins Are Allowed To Add Bots To This Chat! Get Outta Here.")
+            else:
+                try:
+                    if lockable == "url":
+                        reason = "{} Has Sent A 🔗 Link WithOut Authorization".format(message.from_user.first_name)
+                    else:
+                        reason = "{} Is Locked In This Chat".format(lockable)
+                    user_id = message.from_user.id
+                    temp_message = message
+
+                    if user_id:
+                        if temp_message.from_user.id == user_id:
+                            log_reason = warn_lock(temp_message.from_user, chat, reason, temp_message, warner=None)
+                        else:
+                            log_reason = warn_lock(chat.get_member(user_id).user, chat, reason, temp_message, warner=None)
+                    else:
+                        temp_message.reply_text("No user was designated!")
+
+                    await message.delete()
+                except BadRequest as excp:
+                    if excp.MESSAGE == "Message to delete not found":
+                        pass
+                    else:
+                        logging.warning("ERROR in lockables")
+
+            break
+
+    if LOG_CHANNEL:
+        try:
+            return await client.send_message(LOG_CHANNEL, log_reason)
+        except ChatAdminRequired:
+            await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission")
+            return
+    else:
+        return
+
+
+@ufs.on_message(filters.all & filters.group, group=REST_GROUP)
+@user_not_admin
+async def rest_handler(client, message):
+    global log_reason
+    chat = message.chat
+    warner = ""
+
+    a_chat = client.get_chat_member(chat.id, BOT_ID)
+    for restriction, m_filter in RESTRICTION_TYPES.items():
+        if filter(message, RESTRICTION_TYPES.items()) and \
+                await lock_db.is_restr_locked(chat.id, restriction) and \
+                can_delete(a_chat, BOT_ID):
+            try:
+                reason = "{} Is Locked In This Chat".format(restriction)
+                user_id = message.from_user.id
+                temp_message = message
+
+                if user_id:
+                    if temp_message.from_user.id == user_id:
+                        log_reason = warn_lock(temp_message.from_user, chat, reason, temp_message, warner)
+                    else:
+                        log_reason = warn_lock(chat.get_member(user_id).user, chat, reason, temp_message, warner)
+                else:
+                    temp_message.reply_text("No user was designated!")
+                message.delete()
+            except BadRequest as excp:
+                if excp.MESSAGE == "Message to delete not found":
+                    pass
+                else:
+                    logging.exception("ERROR in restrictions")
+            break
+
+    if LOG_CHANNEL:
+        try:
+            return await client.send_message(LOG_CHANNEL, log_reason)
+        except ChatAdminRequired:
+            await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission")
+            return
+    else:
+        return
+
+
+def warn_lock(user, chat, reason: str, message, warner=None):
+    if is_user_admin(chat, user.id):
+        message.reply_text("Damn admins, can't even be warned!")
+        return
+
+    if warner:
+        warner_tag = f"<a href=tg://user?id={warner.id}>{warner.first_name}</a>"       # mention_html(warner.id, warner.first_name)
+    else:
+        warner_tag = "Automated Warn Filter."
+
+    limit, soft_warn = warns_db.get_warn_settings(chat.id)
+    num_warns, reasons = warns_db.add_warns(user.id, chat.id, reason)
+    if num_warns >= limit:
+        warns_db.reset_warns(user.id, chat.id)
+        if soft_warn:  # kick
+            chat.unban_member(user.id)
+            reply = "{} warnings, {} has been kicked!".format(limit, user.mention)
+
+        else:  # ban
+            chat.kick_member(user.id)
+            reply = "{} warnings, {} has been banned!".format(limit, user.mention)
+
+        for warn_reason in reasons:
+            reply += "\n - {}".format(warn_reason)
+
+        # message.bot.send_sticker(chat.id, BAN_STICKER)  #Coffin Elvira sticker
+        keyboard = []
+        log_reason = "<b>{}:</b>" \
+                     "\n#WARN_BAN" \
+                     "\n<b>Admin:</b> {}" \
+                     "\n<b>User:</b> {}" \
+                     "\n<b>Reason:</b> {}"\
+                     "\n<b>Counts:</b> <code>{}/{}</code>".format(chat.title,
+                                                                  warner_tag,
+                                                                  user.mention,
+                                                                  reason, num_warns, limit)
+
+    else:
+        keyboard = InlineKeyboardMarkup(
+            [[InlineKeyboardButton("Remove warn (Admin only)", callback_data="rm_warn({})".format(user.id))]])
+
+        reply = "{} has {}/{} warnings... watch out!".format(user.mention, num_warns,
+                                                             limit)
+        if reason:
+            reply += "\nReason for last warn:\n{}".format(reason)
+
+        log_reason = "<b>{}:</b>" \
+                     "\n#WARN" \
+                     "\n<b>Admin:</b> {}" \
+                     "\n<b>User:</b> {}" \
+                     "\n<b>Reason:</b> {}"\
+                     "\n<b>Counts:</b> <code>{}/{}</code>".format(chat.title,
+                                                                  warner_tag,
+                                                                  user.mention,
+                                                                  reason, num_warns, limit)
 
     try:
-        await ufs.set_chat_permissions(
-            message.chat.id, ChatPermissions(**permissions)
-        )
-    except ChatNotModified:
-        return await message.reply_text(
-            "To unlock this, you have to unlock 'messages' first."
-        )
-
-    await message.reply_text(("Locked." if lock else "Unlocked."))
-
-
-@ufs.on_message(filters.command(["lock", "unlock"]) & ~filters.private)
-@adminsOnly("can_restrict_members")
-async def locks_func(_, message):
-    if len(message.command) != 2:
-        return await message.reply_text(incorrect_parameters)
-
-    chat_id = message.chat.id
-    parameter = message.text.strip().split(None, 1)[1].lower()
-    state = message.command[0].lower()
-
-    if parameter not in data and parameter != "all":
-        return await message.reply_text(incorrect_parameters)
-
-    permissions = await current_chat_permissions(chat_id)
-
-    if parameter in data:
-        await tg_lock(
-            message,
-            permissions,
-            data[parameter],
-            bool(state == "lock"),
-        )
-    elif parameter == "all" and state == "lock":
-        await ufs.set_chat_permissions(chat_id, ChatPermissions())
-        await message.reply_text(f"Locked Everything in {message.chat.title}")
-
-    elif parameter == "all" and state == "unlock":
-        await ufs.set_chat_permissions(
-         chat_id,
-         ChatPermissions(
-            can_send_messages=True,
-            can_send_media_messages=True,
-            can_send_stickers=True,
-            can_send_animations=True,
-            can_invite_users=True,
-            can_send_games=True,
-            can_use_inline_bots=True,
-            can_send_polls=True,
-            can_add_web_page_previews=True
-                        )
-                                 )
-        await message.reply(f"Unlocked Everything in {message.chat.title}")
+        message.reply_text(reply, reply_markup=keyboard)
+    except BadRequest as excp:
+        if excp.MESSAGE == "Reply message not found":
+            # Do not reply
+            message.reply_text(reply, reply_markup=keyboard, quote=False)
+        else:
+            raise
+    return log_reason
 
 
-@ufs.on_message(filters.command("locks") & ~filters.private)
-@capture_err
-async def locktypes(_, message):
-    permissions = await current_chat_permissions(message.chat.id)
-
-    if not permissions:
-        return await message.reply_text("No Permissions.")
-
-    perms = "".join(f"__**{i}**__\n" for i in permissions)
-    await message.reply_text(perms)
+def __migrate__(old_chat_id, new_chat_id):
+    lock_db.migrate_chat(old_chat_id, new_chat_id)
 
 
-@ufs.on_message(filters.text & ~filters.private, group=69)
-async def url_detector(_, message):
-    user = message.from_user
-    chat_id = message.chat.id
-    text = message.text.lower().strip()
+__HELP__ = """
+ - /locktypes: a list of possible locktypes
+*Admin only:*
+ - /lock <type>: lock items of a certain type (not available in private)
+ - /unlock <type>: unlock items of a certain type (not available in private)
+ - /locks: the current list of locks in this chat.
+Locks can be used to restrict a group's users.
+eg:
+Locking urls will auto-delete all messages with urls which haven't been whitelisted, locking stickers will delete all \
+stickers, etc.
+Locking bots will stop non-admins from adding bots to the chat.
+"""
 
-    if not text or not user:
-        return
-    if user.id in (SUDOERS + (await list_admins(chat_id))):
-        return
-
-    check = get_urls_from_text(text)
-    if check:
-        permissions = await current_chat_permissions(chat_id)
-        if "can_add_web_page_previews" not in permissions:
-            try:
-                await message.delete()
-            except Exception:
-                await message.reply_text(
-                    "This message contains a URL, "
-                    + "but i don't have enough permissions to delete it"
-                )
+__MODULE__ = "Locks"

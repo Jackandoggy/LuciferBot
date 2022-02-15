@@ -4,7 +4,7 @@
 from pyrogram import filters
 
 from ufsbotz import ufs
-from ufsbotz.core.decorators.permissions import adminsOnly
+from ufsbotz.helper_fn.chat_status import adminsOnly
 
 __MODULE__ = "AntiService"
 __HELP__ = """

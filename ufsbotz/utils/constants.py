@@ -19,6 +19,7 @@ NOTE: Fillings only works in greetings module.
 <u>Supported formatting:</u>
 
 <code>**Bold**</code> : Creates <b>bold</b> text.
+<code>||spoiler||</code>: Creates <spoiler>spoiler</spoiler> text.
 <code>~~strike~~</code>: Creates <strike>striked</strike> text.
 <code>__italic__</code>: Creates <i>italic</i> text.
 <code>--underline--</code>: Creates <u>underline</u> text.
