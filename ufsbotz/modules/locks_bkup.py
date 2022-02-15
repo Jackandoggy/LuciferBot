@@ -8,20 +8,20 @@ from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.modules.admin import current_chat_permissions, list_admins
 from ufsbotz.utils.functions import get_urls_from_text
 
-__MODULE__ = "Locks"
-__HELP__ = """
-Commands: /lock | /unlock | /locks [No Parameters Required]
-
-Parameters:
-    messages | stickers | gifs | media | games | polls
-
-    inline  | url | group_info | user_add | pin
-
-You can only pass the "all" parameter with /lock, not with /unlock
-
-Example:
-    /lock all
-"""
+# __MODULE__ = "Locks"
+# __HELP__ = """
+# Commands: /lock | /unlock | /locks [No Parameters Required]
+#
+# Parameters:
+#     messages | stickers | gifs | media | games | polls
+#
+#     inline  | url | group_info | user_add | pin
+#
+# You can only pass the "all" parameter with /lock, not with /unlock
+#
+# Example:
+#     /lock all
+# """
 
 incorrect_parameters = "Incorrect Parameters, Check Locks Section In Help."
 # Using disable_preview as a switch for url checker
