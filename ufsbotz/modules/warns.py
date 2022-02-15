@@ -12,7 +12,7 @@ from ufsbotz.core.decorators.errors import capture_err
 from ufsbotz.database.warns_db import warns_db
 from ufsbotz.helper_fn.chat_status import user_admin, get_active_connection, is_user_admin, adminsOnly, bot_admin, \
     user_admin_no_reply
-from ufsbotz.helper_fn.misc import CustomFilters
+from ufsbotz.helper_fn.misc import has_text
 from ufsbotz.helper_fn.string_handling import split_quotes, split_message
 from ufsbotz.utils.filter_groups import WARN_HANDLER_GROUP
 from ufsbotz.utils.functions import extract_userid, extract_user_and_reason, extract_text
@@ -304,7 +304,7 @@ async def list_warn_filters(client, message):
         await message.reply_text(filter_list)
 
 
-@ufs.on_message(CustomFilters.has_text & filters.group, group=WARN_HANDLER_GROUP)
+@ufs.on_message(has_text & filters.group, group=WARN_HANDLER_GROUP)
 @capture_err
 async def reply_filter(client, message):
     global log_reason
