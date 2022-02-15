@@ -315,21 +315,22 @@ async def reply_filter(client, message):
     if not to_match:
         return ""
 
-    for keyword in chat_warn_filters:
-        pattern = r"( |^|[^\w])" + re.escape(keyword['keyword']) + r"( |$|[^\w])"
-        if re.search(pattern, to_match, flags=re.IGNORECASE):
-            user = message.from_user
-            warn_filter = await warns_db.get_warn_filters(chat.id, keyword)
-            log_reason = warn(user, chat, warn_filter.reply, message)
+    if chat_warn_filters:
+        for keyword in chat_warn_filters:
+            pattern = r"( |^|[^\w])" + re.escape(keyword['keyword']) + r"( |$|[^\w])"
+            if re.search(pattern, to_match, flags=re.IGNORECASE):
+                user = message.from_user
+                warn_filter = await warns_db.get_warn_filters(chat.id, keyword)
+                log_reason = warn(user, chat, warn_filter.reply, message)
 
-    if LOG_CHANNEL:
-        try:
-            return await client.send_message(LOG_CHANNEL, log_reason)
-        except ChatAdminRequired:
-            await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission")
+        if LOG_CHANNEL:
+            try:
+                return await client.send_message(LOG_CHANNEL, log_reason)
+            except ChatAdminRequired:
+                await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission")
+                return
+        else:
             return
-    else:
-        return
 
 
 @ufs.on_message(filters.command("warnlimit") & filters.private & ~filters.edited)
