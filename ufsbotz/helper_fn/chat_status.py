@@ -184,7 +184,7 @@ def bot_can_delete(func):
     def delete_rights(client: Client, message: Message, *args, **kwargs):
         CHAT_ID, TITLE, STATUS, ERROR = get_active_connection(client, message)
         # CHAT = client.get_chat(CHAT_ID)
-        CHAT = await client.get_chat_member(CHAT_ID, BOT_ID)
+        CHAT = client.get_chat_member(CHAT_ID, BOT_ID)
         if can_delete(CHAT, BOT_ID):
             return func(client, message, *args, **kwargs)
         else:
