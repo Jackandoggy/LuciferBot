@@ -148,7 +148,7 @@ def bot_admin(func):
         if is_bot_admin(message.chat, BOT_ID):
             return func(client, message, *args, **kwargs)
         else:
-            await message.reply_text("I'm not admin!")
+            message.reply_text("I'm not admin!")
 
     return is_admin
 
@@ -164,7 +164,7 @@ def user_admin_no_reply(func):
             pass
 
         elif DEL_CMDS and " " not in message.text:
-            await message.delete()
+            message.delete()
 
     return is_admin
 
@@ -188,8 +188,8 @@ def bot_can_delete(func):
         if can_delete(CHAT, BOT_ID):
             return func(client, message, *args, **kwargs)
         else:
-            await message.reply_text("I can't delete messages here! "
-                                     "Make sure I'm admin and can delete other user's messages.")
+            message.reply_text("I can't delete messages here! "
+                               "Make sure I'm admin and can delete other user's messages.")
 
     return delete_rights
 
