@@ -98,78 +98,82 @@ async def locktypes(client, message):
 @bot_can_delete
 @capture_err
 async def lock(client, message):
-    CHAT_ID, TITLE, STATUS, ERROR = get_active_connection(client, message)
-    CHAT = await client.get_chat_member(CHAT_ID, BOT_ID)
+    try:
+        CHAT_ID, TITLE, STATUS, ERROR = get_active_connection(client, message)
+        CHAT = await client.get_chat_member(CHAT_ID, BOT_ID)
 
-    if not STATUS:
-        await message.reply_text(ERROR, quote=True)
-        return
+        if not STATUS:
+            await message.reply_text(ERROR, quote=True)
+            return
 
-    args = message.text.split(None, 1)
+        args = message.text.split(None, 1)
 
-    if not await lock_db.is_locks_exist(str(CHAT_ID)):
-        await lock_db.add_locks(str(CHAT_ID), False)
-        await lock_db.add_restrictions(str(CHAT_ID), False)
+        if not await lock_db.is_locks_exist(str(CHAT_ID)):
+            await lock_db.add_locks(str(CHAT_ID), False)
+            await lock_db.add_restrictions(str(CHAT_ID), False)
 
-    if can_delete(CHAT, BOT_ID):
-        if len(args) >= 1:
-            if args[1] in LOCK_TYPES:
-                await lock_db.update_locks(CHAT_ID, str(args[1]).lower(), True)
-                await message.reply_text("Locked **{}** Messages!".format(str(args[1]).lower()))
-                log = "**{}:**" \
-                      "\n#LOCK" \
-                      "\n**Admin:** {}" \
-                      "\nLocked **{}**.".format(TITLE, message.from_user.mention, str(args[1]).lower())
-                if LOG_CHANNEL:
-                    try:
-                        return await client.send_message(LOG_CHANNEL, log)
-                    except ChatAdminRequired:
-                        await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission")
+        if can_delete(CHAT, BOT_ID):
+            if len(args) >= 1:
+                if args[1] in LOCK_TYPES:
+                    await lock_db.update_locks(CHAT_ID, str(args[1]).lower(), True)
+                    await message.reply_text("Locked **{}** Messages!".format(str(args[1]).lower()))
+                    log = "**{}:**" \
+                          "\n#LOCK" \
+                          "\n**Admin:** {}" \
+                          "\nLocked **{}**.".format(TITLE, message.from_user.mention, str(args[1]).lower())
+                    if LOG_CHANNEL:
+                        try:
+                            return await client.send_message(LOG_CHANNEL, log)
+                        except ChatAdminRequired:
+                            await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission")
+                            return
+                    else:
                         return
-                else:
-                    return
-            elif args[1] in RESTRICTION_TYPES:
-                await lock_db.update_restrictions(CHAT_ID, str(args[1]).lower(), True)
-                members = await client.get_chat_members(chat_id=str(CHAT_ID), limit=client.get_chat_members_count(str(CHAT_ID)), filter="all")
+                elif args[1] in RESTRICTION_TYPES:
+                    await lock_db.update_restrictions(CHAT_ID, str(args[1]).lower(), True)
+                    members = await client.get_chat_members(chat_id=str(CHAT_ID), limit=client.get_chat_members_count(str(CHAT_ID)), filter="all")
 
-                if args[1] == "messages":
-                    await restr_members(client, str(CHAT_ID), members, messages=False, media=True, other=True,
-                                        previews=True)
-                elif args[1] == "media":
-                    await restr_members(client, str(CHAT_ID), members, messages=False, media=False, other=True,
-                                        previews=True)
-                elif args[1] == "other":
-                    await restr_members(client, str(CHAT_ID), members, messages=False, media=False, other=False,
-                                        previews=True)
-                elif args[1] == "previews":
-                    await restr_members(client, str(CHAT_ID), members, messages=False, media=False, other=False,
-                                        previews=False)
-                elif args[1] == "all":
-                    await restr_members(client, str(CHAT_ID), members, messages=False, media=False, other=False,
-                                        previews=False)
-                """if args[0] == "previews":
-                    members = users_sql.get_chat_members(str(history.chat_id1))
-                    await restr_members(bot, history.chat_id1, members, messages=False, media=False, other=False,
-                                        previews=False)"""
+                    if args[1] == "messages":
+                        await restr_members(client, str(CHAT_ID), members, messages=False, media=True, other=True,
+                                            previews=True)
+                    elif args[1] == "media":
+                        await restr_members(client, str(CHAT_ID), members, messages=False, media=False, other=True,
+                                            previews=True)
+                    elif args[1] == "other":
+                        await restr_members(client, str(CHAT_ID), members, messages=False, media=False, other=False,
+                                            previews=True)
+                    elif args[1] == "previews":
+                        await restr_members(client, str(CHAT_ID), members, messages=False, media=False, other=False,
+                                            previews=False)
+                    elif args[1] == "all":
+                        await restr_members(client, str(CHAT_ID), members, messages=False, media=False, other=False,
+                                            previews=False)
+                    """if args[0] == "previews":
+                        members = users_sql.get_chat_members(str(history.chat_id1))
+                        await restr_members(bot, history.chat_id1, members, messages=False, media=False, other=False,
+                                            previews=False)"""
 
-                await message.reply_text("Locked **{}** Messages!".format(str(args[1]).lower()))
-                log = "**{}:**" \
-                      "\n#LOCK" \
-                      "\n**Admin:** {}" \
-                      "\nLocked **{}**.".format(TITLE, message.from_user.mention, str(args[1]).lower())
-                if LOG_CHANNEL:
-                    try:
-                        return await client.send_message(LOG_CHANNEL, log)
-                    except ChatAdminRequired:
-                        await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission")
+                    await message.reply_text("Locked **{}** Messages!".format(str(args[1]).lower()))
+                    log = "**{}:**" \
+                          "\n#LOCK" \
+                          "\n**Admin:** {}" \
+                          "\nLocked **{}**.".format(TITLE, message.from_user.mention, str(args[1]).lower())
+                    if LOG_CHANNEL:
+                        try:
+                            return await client.send_message(LOG_CHANNEL, log)
+                        except ChatAdminRequired:
+                            await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission")
+                            return
+                    else:
                         return
-                else:
-                    return
 
-            else:
-                message.reply_text("What Are You Trying To Lock...? Try /locktypes For The List Of Lockable")
-    else:
-        await message.reply_text("I'm Not An Administrator, Or Haven't Got Delete Rights.", quote=True)
+                else:
+                    message.reply_text("What Are You Trying To Lock...? Try /locktypes For The List Of Lockable")
+        else:
+            await message.reply_text("I'm Not An Administrator, Or Haven't Got Delete Rights.", quote=True)
+            return
+    except Exception as e:
+        await message.reply_text(e, quote=True)
         return
 
 
