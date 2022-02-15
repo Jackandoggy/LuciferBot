@@ -215,7 +215,7 @@ def add_warn_filter(client, message):
     CHAT_ID, TITLE, STATUS, ERROR = get_active_connection(client, message)
 
     if not STATUS:
-        await message.reply_text(ERROR, quote=True)
+        message.reply_text(ERROR, quote=True)
         return
 
     args = message.text.split(None, 1)
@@ -232,9 +232,9 @@ def add_warn_filter(client, message):
     else:
         return
 
-    await warns_db.add_warns(CHAT_ID, keyword, content)
+    warns_db.add_warns(CHAT_ID, keyword, content)
 
-    await message.reply_text("Warn Handler Added For `{}`!".format(keyword))
+    message.reply_text("Warn Handler Added For `{}`!".format(keyword))
     return
 
 
@@ -245,7 +245,7 @@ def remove_warn_filter(client, message):
     CHAT_ID, TITLE, STATUS, ERROR = get_active_connection(client, message)
 
     if not STATUS:
-        await message.reply_text(ERROR, quote=True)
+        message.reply_text(ERROR, quote=True)
         return
 
     args = message.text.split(None, 1)  # use python's maxsplit to separate Cmd, keyword, and reply_text
@@ -263,17 +263,17 @@ def remove_warn_filter(client, message):
     chat_filters = warns_db.get_chat_warn_filters(CHAT_ID)
 
     if not chat_filters:
-        await message.reply_text("No Warning Filters Are Active Here!")
+        message.reply_text("No Warning Filters Are Active Here!")
         return
 
     for filt in chat_filters:
         if filt['keyword'] == to_remove:
             msg = warns_db.remove_warn_filters(CHAT_ID, to_remove)
-            await message.reply_text(msg, quote=True)
+            message.reply_text(msg, quote=True)
             return
 
-    await message.reply_text(f"That's Not A Current Warning Filter - Run /warnlist "
-                             f"For All Active Warning Filters For Your Chat `{TITLE}`.")
+    message.reply_text(f"That's Not A Current Warning Filter - Run /warnlist "
+                       f"For All Active Warning Filters For Your Chat `{TITLE}`.")
 
 
 @ufs.on_message(filters.command(["warnlist", "warnfilters"]) & filters.private & ~filters.edited)
@@ -428,24 +428,24 @@ async def set_warn_strength(client, message):
 
 def __stats__():
     return "{} overall warns, across {} chats.\n" \
-           "{} warn filters, across {} chats.".format(await warns_db.num_warns(), await warns_db.num_warn_chats(),
-                                                      await warns_db.num_warn_filters(),
-                                                      await warns_db.num_warn_filter_chats())
+           "{} warn filters, across {} chats.".format(warns_db.num_warns(), warns_db.num_warn_chats(),
+                                                      warns_db.num_warn_filters(),
+                                                      warns_db.num_warn_filter_chats())
 
 
 def __import_data__(chat_id, data):
     for user_id, count in data.get('warns', {}).items():
         for x in range(int(count)):
-            await warns_db.add_warns(user_id, chat_id)
+            warns_db.add_warns(user_id, chat_id)
 
 
 def __migrate__(old_chat_id, new_chat_id):
-    await warns_db.migrate_chat(old_chat_id, new_chat_id)
+    warns_db.migrate_chat(old_chat_id, new_chat_id)
 
 
 def __chat_settings__(chat_id, user_id):
-    num_warn_filters = await warns_db.num_warn_chat_filters(chat_id)
-    limit, soft_warn = await warns_db.get_warn_settings(chat_id)
+    num_warn_filters = warns_db.num_warn_chat_filters(chat_id)
+    limit, soft_warn = warns_db.get_warn_settings(chat_id)
     return "This chat has `{}` warn filters. It takes `{}` warns " \
            "before the user gets **{}**.".format(num_warn_filters, limit, "kicked" if soft_warn else "banned")
 

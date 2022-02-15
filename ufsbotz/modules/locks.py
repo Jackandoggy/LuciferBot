@@ -416,7 +416,7 @@ def warn_lock(user, chat, reason: str, message, warner=None):
             reply = "{} warnings, {} has been kicked!".format(limit, user.mention)
 
         else:  # ban
-            chat.kick_member(user.id)
+            chat.ban_member(user.id)
             reply = "{} warnings, {} has been banned!".format(limit, user.mention)
 
         for warn_reason in reasons:
