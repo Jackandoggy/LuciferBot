@@ -295,7 +295,7 @@ General command are:
         if mod_match:
             module = mod_match.group(1)
             text = "Here is the help for the **{}** module:\n".format(HELPABLE[module].__MODULE__) \
-                   + HELPABLE[module].__help__
+                   + HELPABLE[module].__HELP__
             await query.message.edit_text(text=text,
                                           parse_mode="markdown",
                                           reply_markup=InlineKeyboardMarkup(
