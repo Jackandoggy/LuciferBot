@@ -289,6 +289,7 @@ async def list_locks(client, message):
     try:
         CHAT_ID, TITLE, STATUS, ERROR = await get_active_connection(client, message)
         CHAT = await client.get_chat_member(CHAT_ID, BOT_ID)
+        await message.reply_text(str(CHAT), quote=True)
 
         if not STATUS:
             await message.reply_text(ERROR, quote=True)
