@@ -300,6 +300,33 @@ async def list_locks(client, message):
         return
 
 
+def get_value(message, m_filter):
+    perms = []
+    try:
+        member = await ufs.get_chat_member(chat_id, user_id)
+    except Exception:
+        return []
+    if member.can_post_messages:
+        perms.append("can_post_messages")
+    if member.can_edit_messages:
+        perms.append("can_edit_messages")
+    if member.can_delete_messages:
+        perms.append("can_delete_messages")
+    if member.can_restrict_members:
+        perms.append("can_restrict_members")
+    if member.can_promote_members:
+        perms.append("can_promote_members")
+    if member.can_change_info:
+        perms.append("can_change_info")
+    if member.can_invite_users:
+        perms.append("can_invite_users")
+    if member.can_pin_messages:
+        perms.append("can_pin_messages")
+    if member.can_manage_voice_chats:
+        perms.append("can_manage_voice_chats")
+    return perms
+
+
 @ufs.on_message(filters.all & filters.group, group=PERM_GROUP)
 @user_not_admin
 async def del_lockables(client, message):
@@ -309,10 +336,11 @@ async def del_lockables(client, message):
 
     for lockable, m_filter in LOCK_TYPES.items():
         a_chat = await client.get_chat_member(chat.id, BOT_ID)
-        # lockable_item = getattr(message, m_filter, False)
+        lockable_item = hasattr(message, m_filter)
+        aa = get_value(message, m_filter)
         lockable_item = bool(filter(message, m_filter))
         logging.info(filter(message, m_filter))
-        if lockable_item and \
+        if  and \
                 await lock_db.is_locked(chat.id, lockable) \
                 and can_delete(a_chat, BOT_ID):
             if lockable == "bots":
