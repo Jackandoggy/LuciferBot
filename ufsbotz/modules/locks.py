@@ -250,7 +250,7 @@ async def unlock(client, message):
         return
 
 
-async def build_lock_message(chat_id):
+def build_lock_message(chat_id):
     locks = await lock_db.get_locks(chat_id)
     restr = await lock_db.get_restrictions(chat_id)
     if not (locks or restr):
@@ -296,7 +296,7 @@ async def list_locks(client, message):
             return
 
         if is_user_admin(CHAT, message.from_user.id):
-            res = await build_lock_message(CHAT_ID)
+            res = build_lock_message(CHAT_ID)
 
             await message.reply_text(res, quote=True)
     except Exception as e:
