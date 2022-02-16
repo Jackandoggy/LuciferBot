@@ -22,14 +22,14 @@ async def get_served_chats() -> list:
 
 
 async def add_served_chat(chat_id: int):
-    is_served = is_served_chat(chat_id)
+    is_served = await is_served_chat(chat_id)
     if is_served:
         return
     return groupsdb.insert_one({"chat_id": chat_id})
 
 
 async def remove_served_chat(chat_id: int):
-    is_served = is_served_chat(chat_id)
+    is_served = await is_served_chat(chat_id)
     if not is_served:
         return
     return groupsdb.delete_one({"chat_id": chat_id})

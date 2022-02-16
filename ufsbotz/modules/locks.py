@@ -12,10 +12,10 @@ from ufsbotz.database.locks_db import lock_db
 from ufsbotz.helper_fn.chat_status import user_admin, get_active_connection, bot_can_delete, can_delete, is_user_admin, \
     user_not_admin, is_bot_admin
 
-logging.config.fileConfig('logging.conf')
-logging.getLogger().setLevel(logging.INFO)
-logging.getLogger("pyrogram").setLevel(logging.ERROR)
-logging.getLogger("imdbpy").setLevel(logging.ERROR)
+# logging.config.fileConfig('logging.conf')
+# logging.getLogger().setLevel(logging.INFO)
+# logging.getLogger("pyrogram").setLevel(logging.ERROR)
+# logging.getLogger("imdbpy").setLevel(logging.ERROR)
 
 URL = ("https://" or "http://")
 LOCK_TYPES = {'sticker': filters.sticker,
@@ -287,7 +287,7 @@ async def build_lock_message(chat_id):
 @user_admin
 async def list_locks(client, message):
     try:
-        CHAT_ID, TITLE, STATUS, ERROR = get_active_connection(client, message)
+        CHAT_ID, TITLE, STATUS, ERROR = await get_active_connection(client, message)
         CHAT = await client.get_chat_member(CHAT_ID, BOT_ID)
 
         if not STATUS:
@@ -301,7 +301,7 @@ async def list_locks(client, message):
 
             await message.reply_text(res, quote=True)
     except Exception as e:
-        await message.reply_text(CHAT + '\n' + message.from_user.id + '\n' + e, quote=True)
+        await message.reply_text(e, quote=True)
         return
 
 

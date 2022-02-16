@@ -56,8 +56,8 @@ async def delete_blacklist_filter(chat_id: int, word: str) -> bool:
 
 
 async def blacklisted_chats() -> list:
-    chats = blacklist_chatdb.find({"chat_id": {"$lt": 0}})
-    return [chat["chat_id"] for chat in chats.to_list(length=1000000000)]
+    chats = list(blacklist_chatdb.find({"chat_id": {"$lt": 0}}))
+    return [chat["chat_id"] for chat in chats]      #.to_list(length=1000000000)
 
 
 async def blacklist_chat(chat_id: int) -> bool:

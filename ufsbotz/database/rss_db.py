@@ -31,8 +31,8 @@ async def is_rss_active(chat_id: int) -> bool:
 
 
 async def get_rss_feeds() -> list:
-    feeds = rssdb.find({"chat_id": {"$exists": 1}})
-    feeds = feeds.to_list(length=10000000)
+    feeds = list(rssdb.find({"chat_id": {"$exists": 1}}))
+    # feeds = feeds.to_list(length=10000000)
     if not feeds:
         return
     return [dict(
@@ -43,6 +43,6 @@ async def get_rss_feeds() -> list:
 
 
 async def get_rss_feeds_count() -> int:
-    feeds = rssdb.find({"chat_id": {"$exists": 1}})
-    feeds = feeds.to_list(length=10000000)
+    feeds = list(rssdb.find({"chat_id": {"$exists": 1}}))
+    # feeds = feeds.to_list(length=10000000)
     return len(feeds)

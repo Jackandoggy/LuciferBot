@@ -1,14 +1,16 @@
 import asyncio
 import importlib
+import logging
 import random
 import re
 
 # import uvloop
-from pyrogram import filters, idle
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram import filters, idle, Client
+from pyrogram.errors import BadRequest
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 
 from ufsbotz import (BOT_NAME, BOT_USERNAME, LOG_GROUP_ID,
-                     aiohttpsession, ufs)
+                     aiohttpsession, ufs, IMPORTED)
 from ufsbotz.database.restart_db import clean_restart_stage
 from ufsbotz.modules import ALL_MODULES
 from ufsbotz.modules.sudoers import bot_sys_stats
@@ -24,18 +26,27 @@ HELPABLE = {}
 async def start_bot():
     global HELPABLE
 
-    for module in ALL_MODULES:
-        imported_module = importlib.import_module("ufsbotz.modules." + module)
-        if (
-                hasattr(imported_module, "__MODULE__")
-                and imported_module.__MODULE__
-        ):
-            imported_module.__MODULE__ = imported_module.__MODULE__
-            if (
-                    hasattr(imported_module, "__HELP__")
-                    and imported_module.__HELP__
-            ):
-                HELPABLE[imported_module.__MODULE__.lower()] = imported_module
+    # for module in ALL_MODULES:
+    #     imported_module = importlib.import_module("ufsbotz.modules." + module)
+    #     if hasattr(imported_module, "__MODULE__") and imported_module.__MODULE__:
+    #         imported_module.__MODULE__ = imported_module.__MODULE__
+    #         if hasattr(imported_module, "__HELP__") and imported_module.__HELP__:
+    #             HELPABLE[imported_module.__MODULE__.lower()] = imported_module
+
+    for module_name in ALL_MODULES:
+        imported_module = importlib.import_module("ufsbotz.modules." + module_name)
+
+        if not hasattr(imported_module, "__MODULE__"):
+            imported_module.__MODULE__ = imported_module.__name__
+
+        if not imported_module.__MODULE__.lower() in IMPORTED:
+            IMPORTED[imported_module.__MODULE__.lower()] = imported_module
+        else:
+            raise Exception("Can't Have Two Modules With The Same Name! Please Change One")
+
+        if hasattr(imported_module, "__HELP__") and imported_module.__HELP__:
+            HELPABLE[imported_module.__MODULE__.lower()] = imported_module
+
     bot_modules = ""
     j = 1
     for i in ALL_MODULES:
@@ -64,7 +75,7 @@ async def start_bot():
             )
 
         else:
-            await ufs.send_message(LOG_GROUP_ID, "Bot started!")
+            await ufs.send_message(LOG_GROUP_ID, "**Bot Restarted Successfully**!")
     except Exception:
         pass
 
@@ -259,13 +270,16 @@ async def stats_callbacc(_, CallbackQuery):
 
 
 @ufs.on_callback_query(filters.regex(r"help_(.*?)"))
-async def help_button(client, query):
+async def help_button(client: Client, query: CallbackQuery):
     home_match = re.match(r"help_home\((.+?)\)", query.data)
     mod_match = re.match(r"help_module\((.+?)\)", query.data)
     prev_match = re.match(r"help_prev\((.+?)\)", query.data)
     next_match = re.match(r"help_next\((.+?)\)", query.data)
     back_match = re.match(r"help_back", query.data)
     create_match = re.match(r"help_create", query.data)
+    help_match = re.match(r"help_", query.data)
+    close_match = re.match(r"close_btn", query.data)
+
     top_text = f"""
 Hello {query.from_user.first_name}, My name is {BOT_NAME}.
 I'm a group management bot with some usefule features.
@@ -276,73 +290,140 @@ General command are:
  - /start: Start the bot
  - /help: Give this message
  """
-    if mod_match:
-        module = mod_match.group(1)
-        text = (
-                "{} **{}**:\n".format(
-                    "Here is the help for", HELPABLE[module].__MODULE__
-                )
-                + HELPABLE[module].__HELP__
-        )
+    # ######################### MODULE HELP START #############################################################
+    try:
+        if mod_match:
+            module = mod_match.group(1)
+            text = "Here is the help for the **{}** module:\n".format(HELPABLE[module].__MODULE__) \
+                   + HELPABLE[module].__help__
+            await query.message.edit_text(text=text,
+                                          parse_mode="markdown",
+                                          reply_markup=InlineKeyboardMarkup(
+                                              [[InlineKeyboardButton(text="Back", callback_data="help_back")]]))
 
-        await query.message.edit(
-            text=text,
-            reply_markup=InlineKeyboardMarkup(
-                [[InlineKeyboardButton("back", callback_data="help_back")]]
-            ),
-            disable_web_page_preview=True,
-        )
-    elif home_match:
-        await ufs.send_message(
-            query.from_user.id,
-            text=home_text_pm.format(username=query.from_user.first_name, botname=BOT_NAME),
-            reply_markup=home_keyboard_pm,
-        )
+        elif prev_match:
+            curr_page = int(prev_match.group(1))
+            await query.message.edit_text(top_text,
+                                          parse_mode="markdown",
+                                          reply_markup=InlineKeyboardMarkup(
+                                              paginate_modules(curr_page - 1, HELPABLE, "help")))
+
+        elif next_match:
+            next_page = int(next_match.group(1))
+            await query.message.edit_text(top_text,
+                                          parse_mode="markdown",
+                                          reply_markup=InlineKeyboardMarkup(
+                                              paginate_modules(next_page + 1, HELPABLE, "help")))
+
+        elif back_match:
+            await query.message.edit_text(text=top_text,
+                                          parse_mode="markdown",
+                                          reply_markup=InlineKeyboardMarkup(paginate_modules(0, HELPABLE, "help")))
+
+        elif help_match:
+            await query.message.edit_text(text=top_text,
+                                          parse_mode="markdown",
+                                          reply_markup=InlineKeyboardMarkup(paginate_modules(0, HELPABLE, "help")))
+        elif close_match:
+            await query.message.edit_text(text=top_text,
+                                          parse_mode="markdown",
+                                          reply_markup=InlineKeyboardMarkup(paginate_modules(0, HELPABLE, "help")))
+        elif home_match:
+            await ufs.send_message(
+                query.from_user.id,
+                text=home_text_pm.format(username=query.from_user.first_name, botname=BOT_NAME),
+                reply_markup=home_keyboard_pm,
+            )
+        elif create_match:
+            text, keyboard = await help_parser(query)
+            await query.message.edit(
+                text=text,
+                reply_markup=keyboard,
+                disable_web_page_preview=True,
+            )
         await query.message.delete()
-    elif prev_match:
-        curr_page = int(prev_match.group(1))
-        await query.message.edit(
-            text=top_text,
-            reply_markup=InlineKeyboardMarkup(
-                paginate_modules(curr_page - 1, HELPABLE, "help")
-            ),
-            disable_web_page_preview=True,
-        )
 
-    elif next_match:
-        next_page = int(next_match.group(1))
-        await query.message.edit(
-            text=top_text,
-            reply_markup=InlineKeyboardMarkup(
-                paginate_modules(next_page + 1, HELPABLE, "help")
-            ),
-            disable_web_page_preview=True,
-        )
+        await client.answer_callback_query(query.id)
+    except BadRequest as excp:
+        if excp.MESSAGE == "Message Is Not Modified":
+            pass
+        elif excp.MESSAGE == "Query_id_invalid":
+            pass
+        elif excp.MESSAGE == "Message Can't Be Deleted":
+            pass
+        else:
+            logging.exception("Exception In Help Buttons. %s", str(query.data))
 
-    elif back_match:
-        await query.message.edit(
-            text=top_text,
-            reply_markup=InlineKeyboardMarkup(
-                paginate_modules(0, HELPABLE, "help")
-            ),
-            disable_web_page_preview=True,
-        )
+    # ######################### MODULE HELP END #############################################################
 
-    elif create_match:
-        text, keyboard = await help_parser(query)
-        await query.message.edit(
-            text=text,
-            reply_markup=keyboard,
-            disable_web_page_preview=True,
-        )
+    # if mod_match:
+    #     module = mod_match.group(1)
+    #     text = (
+    #             "{} **{}**:\n".format(
+    #                 "Here is the help for", HELPABLE[module].__MODULE__
+    #             )
+    #             + HELPABLE[module].__HELP__
+    #     )
+    #
+    #     await query.message.edit(
+    #         text=text,
+    #         reply_markup=InlineKeyboardMarkup(
+    #             [[InlineKeyboardButton("back", callback_data="help_back")]]
+    #         ),
+    #         disable_web_page_preview=True,
+    #     )
+    # elif home_match:
+    #     await ufs.send_message(
+    #         query.from_user.id,
+    #         text=home_text_pm.format(username=query.from_user.first_name, botname=BOT_NAME),
+    #         reply_markup=home_keyboard_pm,
+    #     )
+    #     await query.message.delete()
+    # elif prev_match:
+    #     curr_page = int(prev_match.group(1))
+    #     await query.message.edit(
+    #         text=top_text,
+    #         reply_markup=InlineKeyboardMarkup(
+    #             paginate_modules(curr_page - 1, HELPABLE, "help")
+    #         ),
+    #         disable_web_page_preview=True,
+    #     )
+    #
+    # elif next_match:
+    #     next_page = int(next_match.group(1))
+    #     await query.message.edit(
+    #         text=top_text,
+    #         reply_markup=InlineKeyboardMarkup(
+    #             paginate_modules(next_page + 1, HELPABLE, "help")
+    #         ),
+    #         disable_web_page_preview=True,
+    #     )
+    #
+    # elif back_match:
+    #     await query.message.edit(
+    #         text=top_text,
+    #         reply_markup=InlineKeyboardMarkup(
+    #             paginate_modules(0, HELPABLE, "help")
+    #         ),
+    #         disable_web_page_preview=True,
+    #     )
+    #
+    # elif create_match:
+    #     text, keyboard = await help_parser(query)
+    #     await query.message.edit(
+    #         text=text,
+    #         reply_markup=keyboard,
+    #         disable_web_page_preview=True,
+    #     )
 
-    return await client.answer_callback_query(query.id)
+    # return await client.answer_callback_query(query.id)
 
 
 if __name__ == "__main__":
     # uvloop.install()
     try:
         try:
+            logging.info("Successfully Loaded Modules: " + str(ALL_MODULES))
             loop.run_until_complete(start_bot())
         except asyncio.exceptions.CancelledError:
             pass

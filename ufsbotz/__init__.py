@@ -19,10 +19,10 @@ from sample_config import *
 
 
 # Get logging configurations
-logging.config.fileConfig('logging.conf')
-logging.getLogger().setLevel(logging.INFO)
-logging.getLogger("pyrogram").setLevel(logging.ERROR)
-logging.getLogger("imdbpy").setLevel(logging.ERROR)
+# logging.config.fileConfig('logging.conf')
+# logging.getLogger().setLevel(logging.INFO)
+# logging.getLogger("pyrogram").setLevel(logging.ERROR)
+# logging.getLogger("imdbpy").setLevel(logging.ERROR)
 
 GBAN_LOG_GROUP_ID = GBAN_LOG_GROUP_ID
 USERBOT_ID = USERBOT_ID
@@ -39,6 +39,7 @@ STRICT_GMUTE = STRICT_GMUTE
 MAX_MESSAGE_LENGTH = 4096
 MAX_CAPTION_LENGTH = 200
 
+IMPORTED = {}
 MOD_LOAD = []
 MOD_NOLOAD = []
 bot_start_time = time.time()
