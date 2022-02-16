@@ -16,4 +16,5 @@ autocorrect_group = 12
 
 PERM_GROUP = 1
 REST_GROUP = 2
+URL_GROUP = 3
 WARN_HANDLER_GROUP = 9

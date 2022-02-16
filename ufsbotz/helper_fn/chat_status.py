@@ -41,45 +41,48 @@ async def member_permissions(chat_id: int, user_id: int):
 
 def user_admin(func):
     @wraps(func)
-    def is_admin(client, message: Message, *args, **kwargs):
+    async def is_admin(client, message: Message, *args, **kwargs):
         user = message.from_user
-        if user and is_user_admin(message.chat, user.id):
-            return func(client, message, *args, **kwargs)
+        if user and await is_user_admin(message.chat, user.id):
+            return await func(client, message, *args, **kwargs)
 
         elif not user:
             pass
 
         elif DEL_CMDS and " " not in message.text:
-            message.delete()
+            await message.delete()
 
         else:
-            message.reply_text("Who This Non-Admin Telling Me What To Do?")
+            await message.reply_text("Who This Non-Admin Telling Me What To Do?")
 
     return is_admin
 
 
-def is_user_admin(chat: Chat, user_id: int, member: ChatMember = None) -> bool:
-    if chat.type == 'private' \
-            or user_id in SUDOERS:
-        return True
+async def is_user_admin(chat: Chat, user_id: int) -> bool:
+    try:
+        if chat.type == 'private' \
+                or user_id in SUDOERS:
+            return True
 
-    if not member:
-        member = ufs.get_chat_member(chat.id, user_id)
-    return member.status in ('administrator', 'creator')
+        member = await ufs.get_chat_member(chat.id, user_id)
+        return member.status in ('administrator', 'creator')
+    except:
+        member = await ufs.get_chat_member(chat.id, user_id)
+        return member.status in ('administrator', 'creator')
 
 
-def get_active_connection(client, message):
+async def get_active_connection(client, message):
     userid = message.from_user.id if message.from_user else None
     if not userid:
         return '', '', False, f"You are anonymous admin. Use /connect {message.chat.id} in PM"
 
     chat_type = message.chat.type
     if chat_type == "private":
-        grpid = active_connection(str(userid))
+        grpid = await active_connection(str(userid))
         if grpid is not None:
             CHAT_ID = grpid
             try:
-                chat = client.get_chat(grpid)
+                chat = await client.get_chat(grpid)
                 TITLE = chat.title
                 return CHAT_ID, TITLE, True, ''
             except:
@@ -181,40 +184,40 @@ def bot_admin(func):
 
 def user_admin_no_reply(func):
     @wraps(func)
-    def is_admin(client: Client, message: Message, *args, **kwargs):
+    async def is_admin(client: Client, message: Message, *args, **kwargs):
         user = message.from_user
-        if user and is_user_admin(message.chat, user.id):
-            return func(client, message, *args, **kwargs)
+        if user and await is_user_admin(message.chat, user.id):
+            return await func(client, message, *args, **kwargs)
 
         elif not user:
             pass
 
         elif DEL_CMDS and " " not in message.text:
-            message.delete()
+            await message.delete()
 
     return is_admin
 
 
 def user_not_admin(func):
     @wraps(func)
-    def is_not_admin(client: Client, message: Message, *args, **kwargs):
+    async def is_not_admin(client: Client, message: Message, *args, **kwargs):
         user = message.from_user
-        if user and not is_user_admin(message.chat, user.id):
-            return func(client, message, *args, **kwargs)
+        if user and not await is_user_admin(message.chat, user.id):
+            return await func(client, message, *args, **kwargs)
 
     return is_not_admin
 
 
 def bot_can_delete(func):
     @wraps(func)
-    def delete_rights(client: Client, message: Message, *args, **kwargs):
-        CHAT_ID, TITLE, STATUS, ERROR = get_active_connection(client, message)
+    async def delete_rights(client: Client, message: Message, *args, **kwargs):
+        CHAT_ID, TITLE, STATUS, ERROR = await get_active_connection(client, message)
         # CHAT = client.get_chat(CHAT_ID)
-        CHAT = client.get_chat_member(CHAT_ID, BOT_ID)
+        CHAT = await client.get_chat_member(CHAT_ID, BOT_ID)
         if can_delete(CHAT, BOT_ID):
-            return func(client, message, *args, **kwargs)
+            return await func(client, message, *args, **kwargs)
         else:
-            message.reply_text("I can't delete messages here! "
+            await message.reply_text("I can't delete messages here! "
                                "Make sure I'm admin and can delete other user's messages.")
 
     return delete_rights

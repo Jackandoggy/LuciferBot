@@ -88,6 +88,8 @@ BOT_USERNAME = x.username
 BOT_MENTION = x.mention
 BOT_DC_ID = x.dc_id
 
+print(f"[INFO]: {BOT_NAME} with for Pyrogram v{__version__} (Layer {layer}) started on {BOT_USERNAME}.")
+print(f"[INFO]: {BOT_NAME} Has Started Running...🏃💨💨")
 logging.info(f"{BOT_NAME} with for Pyrogram v{__version__} (Layer {layer}) started on {BOT_USERNAME}.")
 logging.info(f"{BOT_NAME} Has Started Running...🏃💨💨")
 

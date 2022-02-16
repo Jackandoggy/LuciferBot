@@ -74,7 +74,7 @@ class Database:
         return dict(
             user_id=int(user_id),
             chat_id=str(chat_id),
-            num_warns=int(num_warns), ban_reason=dict(reasons='',),
+            num_warns=int(num_warns), ban_reason=[],
         )
 
     def new_warn_filters(self, chat_id, keyword, reply):
@@ -89,7 +89,7 @@ class Database:
             warn_limit=warn_limit, soft_warn=soft_warn,
         )
 
-    async def add_warns(self, user_id, chat_id, reasons=None):
+    async def add_warns(self, user_id, chat_id, reasons='No Reason'):
         warn_user = await self.warns.find_one({'user_id': int(user_id), 'chat_id': str(chat_id)})
 
         if not warn_user:
@@ -98,7 +98,11 @@ class Database:
             warn_user = await self.warns.find_one({'user_id': int(user_id), 'chat_id': str(chat_id)})
 
         num_warns = int(warn_user['num_warns']) + 1
-        await self.warns.update_one({'user_id': int(user_id), 'chat_id': str(chat_id)}, {'$set': {'num_warns': num_warns}})
+        await self.warns.update_one({'user_id': int(user_id), 'chat_id': str(chat_id)}, {'$set': {'num_warns': int(num_warns)}})
+
+        warn_user = await self.warns.find_one({'user_id': int(user_id), 'chat_id': str(chat_id)})
+        # if warn_user is not None:
+        #     warn_reasons = [x["reasons"] for x in warn_user["ban_reason"]]
 
         if reasons:
             ban_reason = {
@@ -107,17 +111,17 @@ class Database:
 
             try:
                 await self.warns.update_one(
-                    {'user_id': int(user_id)},
+                    {'user_id': int(user_id), 'chat_id': str(chat_id)},
                     {
-                        "$push": {"ban_reason": ban_reason}
+                        "$push": {'ban_reason': ban_reason}
                     }
                 )
-            except:
+            except Exception as e:
                 logger.exception('Some error occured!', exc_info=True)
 
         warn_user = await self.warns.find_one({'user_id': int(user_id), 'chat_id': str(chat_id)})
         if warn_user is not None:
-            return warn_user["num_warns"], [x["reasons"] for x in warn_user["ban_reason"]]
+            return int(warn_user["num_warns"]), [x["reasons"] for x in warn_user["ban_reason"]]
 
     async def add_warn_filters(self, chat_id, keyword, reply):
         fwarns = self.new_warn_filters(chat_id, keyword, reply)
@@ -173,7 +177,7 @@ class Database:
     async def get_warn_settings(self, chat_id):
         query = await self.s_warns.find_one({'chat_id': str(chat_id)})
         if query is not None:
-            return query['warn_limit'], query['soft_warn']
+            return int(query['warn_limit']), query['soft_warn']
         else:
             return 3, False
 

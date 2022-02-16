@@ -2,12 +2,12 @@ import logging.config
 from ufsbotz import *
 from pyrogram.types import ChatPermissions, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram import Client, filters, mime_types
-from pyrogram.errors import ChatAdminRequired, BadRequest
+from pyrogram.errors import ChatAdminRequired, BadRequest, MessageEmpty
 
 
 # Get logging configurations
 from ufsbotz.core.decorators.errors import capture_err
-from ufsbotz.database import warns_db
+from ufsbotz.database.warns_db import warns_db
 from ufsbotz.database.locks_db import lock_db
 from ufsbotz.helper_fn.chat_status import user_admin, get_active_connection, bot_can_delete, can_delete, is_user_admin, \
     user_not_admin, is_bot_admin
@@ -16,6 +16,8 @@ from ufsbotz.helper_fn.chat_status import user_admin, get_active_connection, bot
 # logging.getLogger().setLevel(logging.INFO)
 # logging.getLogger("pyrogram").setLevel(logging.ERROR)
 # logging.getLogger("imdbpy").setLevel(logging.ERROR)
+from ufsbotz.utils.filter_groups import PERM_GROUP, REST_GROUP, URL_GROUP
+from ufsbotz.utils.functions import get_urls_from_text
 
 URL = ("https://" or "http://")
 LOCK_TYPES = {'sticker': filters.sticker,
@@ -44,9 +46,6 @@ RESTRICTION_TYPES = {'messages': MESSAGES,
                      'other': OTHER,
                      'previews': PREVIEWS,  # NOTE: this has been removed cos its useless atm.
                      'all': filters.all}
-
-PERM_GROUP = 1
-REST_GROUP = 2
 
 
 # NOT ASYNC
@@ -99,7 +98,7 @@ async def locktypes(client, message):
 @capture_err
 async def lock(client, message):
     try:
-        CHAT_ID, TITLE, STATUS, ERROR = get_active_connection(client, message)
+        CHAT_ID, TITLE, STATUS, ERROR = await get_active_connection(client, message)
         CHAT = await client.get_chat_member(CHAT_ID, BOT_ID)
 
         if not STATUS:
@@ -181,7 +180,7 @@ async def lock(client, message):
 @user_admin
 @capture_err
 async def unlock(client, message):
-    CHAT_ID, TITLE, STATUS, ERROR = get_active_connection(client, message)
+    CHAT_ID, TITLE, STATUS, ERROR = await get_active_connection(client, message)
     CHAT = await client.get_chat_member(CHAT_ID, BOT_ID)
 
     if not STATUS:
@@ -250,9 +249,9 @@ async def unlock(client, message):
         return
 
 
-def build_lock_message(chat_id):
-    locks = lock_db.get_locks(chat_id)
-    restr = lock_db.get_restrictions(chat_id)
+async def build_lock_message(chat_id):
+    locks = await lock_db.get_locks(chat_id)
+    restr = await lock_db.get_restrictions(chat_id)
     if not (locks or restr):
         res = "There Are No Current Locks In This Chat."
     else:
@@ -288,17 +287,14 @@ def build_lock_message(chat_id):
 async def list_locks(client, message):
     try:
         CHAT_ID, TITLE, STATUS, ERROR = await get_active_connection(client, message)
-        CHAT = client.get_chat_member(CHAT_ID, BOT_ID)
-        await message.reply_text(str(CHAT), quote=True)
 
         if not STATUS:
             await message.reply_text(ERROR, quote=True)
             return
 
-        if is_user_admin(CHAT, message.from_user.id):
-            res = build_lock_message(CHAT_ID)
+        res = await build_lock_message(CHAT_ID)
 
-            await message.reply_text(res, quote=True)
+        await message.reply_text(res, quote=True)
     except Exception as e:
         await message.reply_text(e, quote=True)
         return
@@ -312,9 +308,13 @@ async def del_lockables(client, message):
     warner = ""
 
     for lockable, m_filter in LOCK_TYPES.items():
-        if filter(message, LOCK_TYPES.items()) and \
+        a_chat = await client.get_chat_member(chat.id, BOT_ID)
+        # lockable_item = getattr(message, m_filter, False)
+        lockable_item = bool(filter(message, m_filter))
+        logging.info(filter(message, m_filter))
+        if lockable_item and \
                 await lock_db.is_locked(chat.id, lockable) \
-                and can_delete(chat.id, BOT_ID):
+                and can_delete(a_chat, BOT_ID):
             if lockable == "bots":
                 new_members = message.new_chat_members
                 for new_mem in new_members:
@@ -337,9 +337,9 @@ async def del_lockables(client, message):
 
                     if user_id:
                         if temp_message.from_user.id == user_id:
-                            log_reason = warn_lock(temp_message.from_user, chat, reason, temp_message, warner=None)
+                            log_reason = await warn_lock(temp_message.from_user, chat, reason, temp_message, warner=None)
                         else:
-                            log_reason = warn_lock(chat.get_member(user_id).user, chat, reason, temp_message, warner=None)
+                            log_reason = await warn_lock(chat.get_member(user_id).user, chat, reason, temp_message, warner=None)
                     else:
                         temp_message.reply_text("No user was designated!")
 
@@ -352,12 +352,14 @@ async def del_lockables(client, message):
 
             break
 
-    if LOG_CHANNEL:
+    if LOG_CHANNEL and log_reason:
         try:
             return await client.send_message(LOG_CHANNEL, log_reason)
         except ChatAdminRequired:
             await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission")
             return
+        except MessageEmpty:
+            return await client.send_message(LOG_CHANNEL, "Log Reason Are Empty. Check In Lock Warn Section.")
     else:
         return
 
@@ -369,9 +371,10 @@ async def rest_handler(client, message):
     chat = message.chat
     warner = ""
 
-    a_chat = client.get_chat_member(chat.id, BOT_ID)
+    a_chat = await client.get_chat_member(chat.id, BOT_ID)
     for restriction, m_filter in RESTRICTION_TYPES.items():
-        if filter(message, RESTRICTION_TYPES.items()) and \
+        lockable_item = getattr(message, restriction, False)
+        if lockable_item and \
                 await lock_db.is_restr_locked(chat.id, restriction) and \
                 can_delete(a_chat, BOT_ID):
             try:
@@ -381,12 +384,12 @@ async def rest_handler(client, message):
 
                 if user_id:
                     if temp_message.from_user.id == user_id:
-                        log_reason = warn_lock(temp_message.from_user, chat, reason, temp_message, warner)
+                        log_reason = await warn_lock(temp_message.from_user, chat, reason, temp_message, warner)
                     else:
-                        log_reason = warn_lock(chat.get_member(user_id).user, chat, reason, temp_message, warner)
+                        log_reason = await warn_lock(chat.get_member(user_id).user, chat, reason, temp_message, warner)
                 else:
                     temp_message.reply_text("No user was designated!")
-                message.delete()
+                await message.delete()
             except BadRequest as excp:
                 if excp.MESSAGE == "Message to delete not found":
                     pass
@@ -394,19 +397,62 @@ async def rest_handler(client, message):
                     logging.exception("ERROR in restrictions")
             break
 
-    if LOG_CHANNEL:
+    if LOG_CHANNEL and log_reason:
         try:
             return await client.send_message(LOG_CHANNEL, log_reason)
         except ChatAdminRequired:
             await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission")
             return
+        except MessageEmpty:
+            return await client.send_message(LOG_CHANNEL, "Log Reason Are Empty. Check In Lock Warn Section.")
     else:
         return
 
 
-def warn_lock(user, chat, reason: str, message, warner=None):
-    if is_user_admin(chat, user.id):
-        message.reply_text("Damn admins, can't even be warned!")
+@ufs.on_message(filters.text & filters.group, group=URL_GROUP)
+@user_not_admin
+async def url_detector(client, message):
+    global log_reason
+    chat = message.chat
+    warner = ""
+
+    check = get_urls_from_text(message.text.lower().strip())
+    if check:
+        try:
+            reason = "{} Has Sent A 🔗 Link WithOut Authorization".format(message.from_user.first_name)
+            user_id = message.from_user.id
+            temp_message = message
+
+            if user_id:
+                if temp_message.from_user.id == user_id:
+                    log_reason = await warn_lock(temp_message.from_user, chat, reason, temp_message, warner=None)
+                else:
+                    log_reason = await warn_lock(chat.get_member(user_id).user, chat, reason, temp_message, warner=None)
+            else:
+                temp_message.reply_text("No user was designated!")
+
+            await message.delete()
+        except BadRequest as excp:
+            if excp.MESSAGE == "Message to delete not found":
+                pass
+            else:
+                logging.warning("ERROR in lockables")
+
+    if LOG_CHANNEL and log_reason:
+        try:
+            return await client.send_message(LOG_CHANNEL, log_reason)
+        except ChatAdminRequired:
+            await message.reply_text("Log Channel Error, Should Be Log Channel Admin With Write Permission")
+            return
+        except MessageEmpty:
+            return await client.send_message(LOG_CHANNEL, "Log Reason Are Empty. Check In Lock Warn Section.")
+    else:
+        return
+
+
+async def warn_lock(user, chat, reason: str, message, warner=None):
+    if await is_user_admin(chat, user.id):
+        await message.reply_text("Damn admins, can't even be warned!")
         return
 
     if warner:
@@ -414,16 +460,16 @@ def warn_lock(user, chat, reason: str, message, warner=None):
     else:
         warner_tag = "Automated Warn Filter."
 
-    limit, soft_warn = warns_db.get_warn_settings(chat.id)
-    num_warns, reasons = warns_db.add_warns(user.id, chat.id, reason)
+    limit, soft_warn = await warns_db.get_warn_settings(chat.id)
+    num_warns, reasons = await warns_db.add_warns(user.id, chat.id, reason)
     if num_warns >= limit:
-        warns_db.reset_warns(user.id, chat.id)
+        await warns_db.reset_warns(user.id, chat.id)
         if soft_warn:  # kick
-            chat.unban_member(user.id)
+            await chat.unban_member(user.id)
             reply = "{} warnings, {} has been kicked!".format(limit, user.mention)
 
         else:  # ban
-            chat.ban_member(user.id)
+            await chat.ban_member(user.id)
             reply = "{} warnings, {} has been banned!".format(limit, user.mention)
 
         for warn_reason in reasons:
@@ -461,13 +507,15 @@ def warn_lock(user, chat, reason: str, message, warner=None):
                                                                   reason, num_warns, limit)
 
     try:
-        message.reply_text(reply, reply_markup=keyboard)
+        await message.reply_text(reply, reply_markup=keyboard)
     except BadRequest as excp:
         if excp.MESSAGE == "Reply message not found":
             # Do not reply
-            message.reply_text(reply, reply_markup=keyboard, quote=False)
+            await message.reply_text(reply, reply_markup=keyboard, quote=False)
         else:
             raise
+    except Exception as e:
+            await message.reply_text(e, quote=False)
     return log_reason
 
 

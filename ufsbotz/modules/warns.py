@@ -20,9 +20,9 @@ from ufsbotz.utils.functions import extract_userid, extract_user_and_reason, ext
 CURRENT_WARNING_FILTER_STRING = "<b>Current Warning Filters In This Chat: </b>"
 
 
-def warn(user: User, chat: Chat, reason: str, message: Message, warner: User = None) -> str:
-    if is_user_admin(chat, user.id):
-        message.reply_text("Damn admins, can't even be warned!")
+async def warn(user: User, chat: Chat, reason: str, message: Message, warner: User = None) -> str:
+    if await is_user_admin(chat, user.id):
+        await message.reply_text("Damn admins, can't even be warned!")
         return ""
 
     if warner:
@@ -30,16 +30,16 @@ def warn(user: User, chat: Chat, reason: str, message: Message, warner: User = N
     else:
         warner_tag = "Automated Warn Filter."
 
-    limit, soft_warn = warns_db.get_warn_settings(chat.id)
-    num_warns, reasons = warns_db.add_warns(user.id, chat.id, reason)
+    limit, soft_warn = await warns_db.get_warn_settings(chat.id)
+    num_warns, reasons = await warns_db.add_warns(user.id, chat.id, reason)
     if num_warns >= limit:
-        warns_db.reset_warns(user.id, chat.id)
+        await warns_db.reset_warns(user.id, chat.id)
         if soft_warn:  # kick
-            chat.unban_member(user.id)
+            await chat.unban_member(user.id)
             reply = "{} warnings, {} has been kicked!".format(limit, user.mention)
 
         else:  # ban
-            chat.ban_member(user.id)
+            await chat.ban_member(user.id)
             reply = "{} warnings, {} has been banned!".format(limit, user.mention)
 
         for warn_reason in reasons:
@@ -74,11 +74,11 @@ def warn(user: User, chat: Chat, reason: str, message: Message, warner: User = N
                                                                   reason, num_warns, limit)
 
     try:
-        message.reply_text(reply, reply_markup=keyboard)
+        await message.reply_text(reply, reply_markup=keyboard)
     except BadRequest as excp:
         if excp.MESSAGE == "Reply message not found":
             # Do not reply
-            message.reply_text(reply, reply_markup=keyboard, quote=False)
+            await message.reply_text(reply, reply_markup=keyboard, quote=False)
         else:
             raise
     return log_reason
@@ -96,9 +96,9 @@ async def warn_user(client, message):
 
     if user_id:
         if message.reply_to_message and message.reply_to_message.from_user.id == user_id:
-            log_reason = warn(message.reply_to_message.from_user, CHAT, reason, message.reply_to_message, WARNER)
+            log_reason = await warn(message.reply_to_message.from_user, CHAT, reason, message.reply_to_message, WARNER)
         else:
-            log_reason = warn(CHAT.get_member(user_id).user, CHAT, reason, message, WARNER)
+            log_reason = await warn(CHAT.get_member(user_id).user, CHAT, reason, message, WARNER)
 
         if LOG_CHANNEL:
             try:
@@ -321,7 +321,7 @@ async def reply_filter(client, message):
             if re.search(pattern, to_match, flags=re.IGNORECASE):
                 user = message.from_user
                 warn_filter = await warns_db.get_warn_filters(chat.id, keyword)
-                log_reason = warn(user, chat, warn_filter.reply, message)
+                log_reason = await warn(user, chat, warn_filter.reply, message)
 
         if LOG_CHANNEL:
             try:
