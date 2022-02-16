@@ -294,8 +294,6 @@ async def list_locks(client, message):
             await message.reply_text(ERROR, quote=True)
             return
 
-        args = message.text.split(None, 1)
-
         if is_user_admin(CHAT, message.from_user.id):
             res = await build_lock_message(CHAT_ID)
 
