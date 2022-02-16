@@ -334,6 +334,7 @@ General command are:
                 text=home_text_pm.format(username=query.from_user.first_name, botname=BOT_NAME),
                 reply_markup=home_keyboard_pm,
             )
+            await query.message.delete()
         elif create_match:
             text, keyboard = await help_parser(query)
             await query.message.edit(
@@ -341,7 +342,6 @@ General command are:
                 reply_markup=keyboard,
                 disable_web_page_preview=True,
             )
-        await query.message.delete()
 
         await client.answer_callback_query(query.id)
     except BadRequest as excp:
