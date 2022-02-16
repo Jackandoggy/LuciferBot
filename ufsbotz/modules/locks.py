@@ -251,8 +251,8 @@ async def unlock(client, message):
 
 
 def build_lock_message(chat_id):
-    locks = await lock_db.get_locks(chat_id)
-    restr = await lock_db.get_restrictions(chat_id)
+    locks = lock_db.get_locks(chat_id)
+    restr = lock_db.get_restrictions(chat_id)
     if not (locks or restr):
         res = "There Are No Current Locks In This Chat."
     else:
